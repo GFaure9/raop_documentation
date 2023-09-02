@@ -31,7 +31,6 @@
 
 class OptionPricingModel:
     def __init__(self, option: dict, **kwargs):
-        # todo: add class/functions descriptions
         Option = namedtuple(&#34;Option&#34;, [key for key in option.keys()])
         self.option = Option(*option.values())
 
@@ -63,7 +62,6 @@ class OptionPricingModel:
 </summary>
 <pre><code class="python">class OptionPricingModel:
     def __init__(self, option: dict, **kwargs):
-        # todo: add class/functions descriptions
         Option = namedtuple(&#34;Option&#34;, [key for key in option.keys()])
         self.option = Option(*option.values())
 

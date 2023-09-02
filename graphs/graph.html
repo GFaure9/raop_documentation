@@ -36,19 +36,19 @@ from scipy.interpolate import griddata
 
 class Graph:
     &#34;&#34;&#34;
-    This class helps to plot graphs from pd.DataFrames obtained from &#39;Option.sensitivity&#39; method.
+    This class helps to plot graphs from pd.DataFrames obtained from `Option.sensitivity` method.
 
     Attributes:
         df (pd.DataFrame): either a 2 or 3 columns dataframe. The last column is the output of the graph.
         The first columns are the variables.
 
     Methods:
-        plot_curve(x, y, save_path): &#39;x&#39; and &#39;y&#39; are the names of the columns containing the
-        data for resp. x and y-axis. If nothing is provided, default is x=first column name
-        and y=second column name. &#39;save_path&#39; is the path at where the plot will be dumped.
+        **plot_curve** (`x`, `y`, `save_path`): `x` and `y` are the names of the columns containing the
+        data for resp. x and y-axis. If nothing is provided, default is `x`=_first column name_
+        and `y`=_second column name_. `save_path` is the path at where the plot will be dumped.
         If nothing is provided, the plot will just be displayed and not saved.
 
-        plot_surface(x, y, z, save_path): same as plot_curve method but to plot a surface.
+        **plot_surface** (`x`, `y`, `z`, `save_path`): same as plot_curve method but to plot a surface.
         It needs a 3-columns dataframe.
     &#34;&#34;&#34;
     def __init__(self, df: pd.DataFrame):
@@ -56,21 +56,23 @@ class Graph:
 
     def plot_curve(self, x: str = None, y: str = None, save_path: str = None):
         &#34;&#34;&#34;
-        Create a plot of a curve from self.df data, and save it to &#39;save_path&#39; if not None.
-        self.df must be as follows:
-                            variable_name   output_name
-                                x1              f(x1)
-                                x2              f(x2)
-                                ...             ...
-                                xN              f(xN)
+        Create a plot of a curve from `self.df` data, and save it to `save_path` if not None.
+        `self.df` must be as follows:
+
+                                | variable_name | output_name |
+                                |---------------|-------------|
+                                |       x1      |    f(x1)    |
+                                |       x2      |    f(x2)    |
+                                |       ...     |     ...     |
+                                |       xN      |    f(xN)    |
 
         Args:
-            x (str): name of the column in self.df for x-axis data. First column if None.
-            y (str): name of the column in self.df for y-axis data. Second column if None.
+            x (str): name of the column in `self.df` for x-axis data. First column if None.
+            y (str): name of the column in `self.df` for y-axis data. Second column if None.
             save_path (str): path to save plot. Default value is None.
 
         Returns:
-            None: nothing is returned. The curve is displayed if &#39;save_path&#39; is None.
+            None: nothing is returned. The curve is displayed if `save_path` is None.
         &#34;&#34;&#34;
         if x is None or y is None:
             x, y = self.df.keys()
@@ -96,11 +98,13 @@ class Graph:
         &#34;&#34;&#34;
         Create a plot of a surface from self.df data, and save it to &#39;save_path&#39; if not None.
         self.df must be as follows:
-                            variable1_name   variable2_name   output_name
-                                x1                 y1            f(x1)
-                                x2                 y1            f(x2)
-                                ...                ...           ...
-                                xN                 yN            f(xN)
+
+                    | variable1_name | variable2_name |   output_name   |
+                    |--------------- |--------------- |-----------------|
+                    |       x1       |       y1       |    f(x1, y1)    |
+                    |       x2       |       y2       |    f(x2, y2)    |
+                    |       ...      |       ...      |       ...       |
+                    |       xN       |       yN       |    f(xN, yN)    |
         Args:
             x (str): name of the column in self.df for x-axis data. First column if None.
             y (str): name of the column in self.df for y-axis data. Second column if None.
@@ -108,7 +112,7 @@ class Graph:
             save_path (str): path to save plot. Default value is None.
 
         Returns:
-            None: nothing is returned. The curve is displayed if &#39;save_path&#39; is None.
+            None: nothing is returned. The curve is displayed if `save_path` is None.
         &#34;&#34;&#34;
         if x is None or y is None or z is None:
             x, y, z = self.df.keys()
@@ -153,7 +157,7 @@ if __name__ == &#34;__main__&#34;:
 <span>(</span><span>df: pandas.core.frame.DataFrame)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>This class helps to plot graphs from pd.DataFrames obtained from 'Option.sensitivity' method.</p>
+<div class="desc"><p>This class helps to plot graphs from pd.DataFrames obtained from <code>Option.sensitivity</code> method.</p>
 <h2 id="attributes">Attributes</h2>
 <dl>
 <dt><strong><code>df</code></strong> :&ensp;<code>pd.DataFrame</code></dt>
@@ -161,11 +165,11 @@ if __name__ == &#34;__main__&#34;:
 </dl>
 <p>The first columns are the variables.</p>
 <h2 id="methods">Methods</h2>
-<p>plot_curve(x, y, save_path): 'x' and 'y' are the names of the columns containing the
-data for resp. x and y-axis. If nothing is provided, default is x=first column name
-and y=second column name. 'save_path' is the path at where the plot will be dumped.
+<p><strong>plot_curve</strong> (<code>x</code>, <code>y</code>, <code>save_path</code>): <code>x</code> and <code>y</code> are the names of the columns containing the
+data for resp. x and y-axis. If nothing is provided, default is <code>x</code>=<em>first column name</em>
+and <code>y</code>=<em>second column name</em>. <code>save_path</code> is the path at where the plot will be dumped.
 If nothing is provided, the plot will just be displayed and not saved.</p>
-<p>plot_surface(x, y, z, save_path): same as plot_curve method but to plot a surface.
+<p><strong>plot_surface</strong> (<code>x</code>, <code>y</code>, <code>z</code>, <code>save_path</code>): same as plot_curve method but to plot a surface.
 It needs a 3-columns dataframe.</p></div>
 <details class="source">
 <summary>
@@ -173,19 +177,19 @@ It needs a 3-columns dataframe.</p></div>
 </summary>
 <pre><code class="python">class Graph:
     &#34;&#34;&#34;
-    This class helps to plot graphs from pd.DataFrames obtained from &#39;Option.sensitivity&#39; method.
+    This class helps to plot graphs from pd.DataFrames obtained from `Option.sensitivity` method.
 
     Attributes:
         df (pd.DataFrame): either a 2 or 3 columns dataframe. The last column is the output of the graph.
         The first columns are the variables.
 
     Methods:
-        plot_curve(x, y, save_path): &#39;x&#39; and &#39;y&#39; are the names of the columns containing the
-        data for resp. x and y-axis. If nothing is provided, default is x=first column name
-        and y=second column name. &#39;save_path&#39; is the path at where the plot will be dumped.
+        **plot_curve** (`x`, `y`, `save_path`): `x` and `y` are the names of the columns containing the
+        data for resp. x and y-axis. If nothing is provided, default is `x`=_first column name_
+        and `y`=_second column name_. `save_path` is the path at where the plot will be dumped.
         If nothing is provided, the plot will just be displayed and not saved.
 
-        plot_surface(x, y, z, save_path): same as plot_curve method but to plot a surface.
+        **plot_surface** (`x`, `y`, `z`, `save_path`): same as plot_curve method but to plot a surface.
         It needs a 3-columns dataframe.
     &#34;&#34;&#34;
     def __init__(self, df: pd.DataFrame):
@@ -193,21 +197,23 @@ It needs a 3-columns dataframe.</p></div>
 
     def plot_curve(self, x: str = None, y: str = None, save_path: str = None):
         &#34;&#34;&#34;
-        Create a plot of a curve from self.df data, and save it to &#39;save_path&#39; if not None.
-        self.df must be as follows:
-                            variable_name   output_name
-                                x1              f(x1)
-                                x2              f(x2)
-                                ...             ...
-                                xN              f(xN)
+        Create a plot of a curve from `self.df` data, and save it to `save_path` if not None.
+        `self.df` must be as follows:
+
+                                | variable_name | output_name |
+                                |---------------|-------------|
+                                |       x1      |    f(x1)    |
+                                |       x2      |    f(x2)    |
+                                |       ...     |     ...     |
+                                |       xN      |    f(xN)    |
 
         Args:
-            x (str): name of the column in self.df for x-axis data. First column if None.
-            y (str): name of the column in self.df for y-axis data. Second column if None.
+            x (str): name of the column in `self.df` for x-axis data. First column if None.
+            y (str): name of the column in `self.df` for y-axis data. Second column if None.
             save_path (str): path to save plot. Default value is None.
 
         Returns:
-            None: nothing is returned. The curve is displayed if &#39;save_path&#39; is None.
+            None: nothing is returned. The curve is displayed if `save_path` is None.
         &#34;&#34;&#34;
         if x is None or y is None:
             x, y = self.df.keys()
@@ -233,11 +239,13 @@ It needs a 3-columns dataframe.</p></div>
         &#34;&#34;&#34;
         Create a plot of a surface from self.df data, and save it to &#39;save_path&#39; if not None.
         self.df must be as follows:
-                            variable1_name   variable2_name   output_name
-                                x1                 y1            f(x1)
-                                x2                 y1            f(x2)
-                                ...                ...           ...
-                                xN                 yN            f(xN)
+
+                    | variable1_name | variable2_name |   output_name   |
+                    |--------------- |--------------- |-----------------|
+                    |       x1       |       y1       |    f(x1, y1)    |
+                    |       x2       |       y2       |    f(x2, y2)    |
+                    |       ...      |       ...      |       ...       |
+                    |       xN       |       yN       |    f(xN, yN)    |
         Args:
             x (str): name of the column in self.df for x-axis data. First column if None.
             y (str): name of the column in self.df for y-axis data. Second column if None.
@@ -245,7 +253,7 @@ It needs a 3-columns dataframe.</p></div>
             save_path (str): path to save plot. Default value is None.
 
         Returns:
-            None: nothing is returned. The curve is displayed if &#39;save_path&#39; is None.
+            None: nothing is returned. The curve is displayed if `save_path` is None.
         &#34;&#34;&#34;
         if x is None or y is None or z is None:
             x, y, z = self.df.keys()
@@ -277,31 +285,28 @@ It needs a 3-columns dataframe.</p></div>
 <span>def <span class="ident">plot_curve</span></span>(<span>self, x: str = None, y: str = None, save_path: str = None)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Create a plot of a curve from self.df data, and save it to 'save_path' if not None.
-self.df must be as follows:
-variable_name
-output_name
-x1
-f(x1)
-x2
-f(x2)
-&hellip;
-&hellip;
-xN
-f(xN)</p>
+<div class="desc"><p>Create a plot of a curve from <code>self.df</code> data, and save it to <code>save_path</code> if not None.
+<code>self.df</code> must be as follows:</p>
+<pre><code>                    | variable_name | output_name |
+                    |---------------|-------------|
+                    |       x1      |    f(x1)    |
+                    |       x2      |    f(x2)    |
+                    |       ...     |     ...     |
+                    |       xN      |    f(xN)    |
+</code></pre>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>x</code></strong> :&ensp;<code>str</code></dt>
-<dd>name of the column in self.df for x-axis data. First column if None.</dd>
+<dd>name of the column in <code>self.df</code> for x-axis data. First column if None.</dd>
 <dt><strong><code>y</code></strong> :&ensp;<code>str</code></dt>
-<dd>name of the column in self.df for y-axis data. Second column if None.</dd>
+<dd>name of the column in <code>self.df</code> for y-axis data. Second column if None.</dd>
 <dt><strong><code>save_path</code></strong> :&ensp;<code>str</code></dt>
 <dd>path to save plot. Default value is None.</dd>
 </dl>
 <h2 id="returns">Returns</h2>
 <dl>
 <dt><code>None</code></dt>
-<dd>nothing is returned. The curve is displayed if 'save_path' is None.</dd>
+<dd>nothing is returned. The curve is displayed if <code>save_path</code> is None.</dd>
 </dl></div>
 <details class="source">
 <summary>
@@ -309,21 +314,23 @@ f(xN)</p>
 </summary>
 <pre><code class="python">def plot_curve(self, x: str = None, y: str = None, save_path: str = None):
     &#34;&#34;&#34;
-    Create a plot of a curve from self.df data, and save it to &#39;save_path&#39; if not None.
-    self.df must be as follows:
-                        variable_name   output_name
-                            x1              f(x1)
-                            x2              f(x2)
-                            ...             ...
-                            xN              f(xN)
+    Create a plot of a curve from `self.df` data, and save it to `save_path` if not None.
+    `self.df` must be as follows:
+
+                            | variable_name | output_name |
+                            |---------------|-------------|
+                            |       x1      |    f(x1)    |
+                            |       x2      |    f(x2)    |
+                            |       ...     |     ...     |
+                            |       xN      |    f(xN)    |
 
     Args:
-        x (str): name of the column in self.df for x-axis data. First column if None.
-        y (str): name of the column in self.df for y-axis data. Second column if None.
+        x (str): name of the column in `self.df` for x-axis data. First column if None.
+        y (str): name of the column in `self.df` for y-axis data. Second column if None.
         save_path (str): path to save plot. Default value is None.
 
     Returns:
-        None: nothing is returned. The curve is displayed if &#39;save_path&#39; is None.
+        None: nothing is returned. The curve is displayed if `save_path` is None.
     &#34;&#34;&#34;
     if x is None or y is None:
         x, y = self.df.keys()
@@ -351,22 +358,14 @@ f(xN)</p>
 </code></dt>
 <dd>
 <div class="desc"><p>Create a plot of a surface from self.df data, and save it to 'save_path' if not None.
-self.df must be as follows:
-variable1_name
-variable2_name
-output_name
-x1
-y1
-f(x1)
-x2
-y1
-f(x2)
-&hellip;
-&hellip;
-&hellip;
-xN
-yN
-f(xN)</p>
+self.df must be as follows:</p>
+<pre><code>        | variable1_name | variable2_name |   output_name   |
+        |--------------- |--------------- |-----------------|
+        |       x1       |       y1       |    f(x1, y1)    |
+        |       x2       |       y2       |    f(x2, y2)    |
+        |       ...      |       ...      |       ...       |
+        |       xN       |       yN       |    f(xN, yN)    |
+</code></pre>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>x</code></strong> :&ensp;<code>str</code></dt>
@@ -381,7 +380,7 @@ f(xN)</p>
 <h2 id="returns">Returns</h2>
 <dl>
 <dt><code>None</code></dt>
-<dd>nothing is returned. The curve is displayed if 'save_path' is None.</dd>
+<dd>nothing is returned. The curve is displayed if <code>save_path</code> is None.</dd>
 </dl></div>
 <details class="source">
 <summary>
@@ -391,11 +390,13 @@ f(xN)</p>
     &#34;&#34;&#34;
     Create a plot of a surface from self.df data, and save it to &#39;save_path&#39; if not None.
     self.df must be as follows:
-                        variable1_name   variable2_name   output_name
-                            x1                 y1            f(x1)
-                            x2                 y1            f(x2)
-                            ...                ...           ...
-                            xN                 yN            f(xN)
+
+                | variable1_name | variable2_name |   output_name   |
+                |--------------- |--------------- |-----------------|
+                |       x1       |       y1       |    f(x1, y1)    |
+                |       x2       |       y2       |    f(x2, y2)    |
+                |       ...      |       ...      |       ...       |
+                |       xN       |       yN       |    f(xN, yN)    |
     Args:
         x (str): name of the column in self.df for x-axis data. First column if None.
         y (str): name of the column in self.df for y-axis data. Second column if None.
@@ -403,7 +404,7 @@ f(xN)</p>
         save_path (str): path to save plot. Default value is None.
 
     Returns:
-        None: nothing is returned. The curve is displayed if &#39;save_path&#39; is None.
+        None: nothing is returned. The curve is displayed if `save_path` is None.
     &#34;&#34;&#34;
     if x is None or y is None or z is None:
         x, y, z = self.df.keys()

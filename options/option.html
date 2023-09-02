@@ -38,26 +38,15 @@ from raop.utils import logger
 # from raop.options import payoffs
 
 
-def check_option_pricing_kwargs(model: Type[OptionPricingModel]):
-    init_arguments = inspect.signature(model.__init__).parameters
-    init_arguments_names = [param for param in init_arguments]
-    init_arguments_names.remove(&#34;self&#34;)
-    init_arguments_names.remove(&#34;option&#34;)
-    if len(init_arguments_names) &gt; 0:
-        log.warning(f&#34;The model {model}&#34;
-                    f&#34; requires to pass the following additional arguments to the function:&#34;
-                    f&#34;\n{init_arguments_names}&#34;)
-
-
 class Option:
     &#34;&#34;&#34;
     Main class to model a stock option among the following types:
+
     - european
     - american
-    ...
 
     Attributes:
-        name (str): name of the option (its category): &#34;european&#34;, &#34;american&#34;, ...
+        name (str): name of the option (its category): &#34;european&#34; or &#34;american&#34;.
         option_type (str): type of the option. Either &#34;put&#34; or &#34;call&#34;.
         underlying_price (float): price of the underlying asset at t=0 (when option is priced).
         strike_price (float): strike price of the option.
@@ -66,11 +55,22 @@ class Option:
         volatility (float): volatility of the underlying asset price at t=0.
 
     Methods:
-        # todo: should &#34;payoffs&#34; be kept ?
-        compute_price(): ???
-        compute_greeks(): ???
-        sensitivity(): ???
-        to_dict(): ???
+        **compute_price** (`model`): return the price of the option estimated with a
+        `model` selected among subclasses of `OptionPricingModel`.
+
+        **compute_greeks** (`model`): return the greeks of the option estimated with a `model`
+        selected among subclasses of `OptionPricingModel`.
+
+        **sensitivity** (`output`, `variable`, `variations`, `model`, `num`): return a
+        `pd.DataFrame` containing the estimated values of `output` (a string) when varying the
+        values of the variables listed in `variable` by a certain percentage around the option&#39;s
+        baseline values. This percentages of variations to be applied are listed in a list of tuples
+        `variations`. `num` is the number of values subdividing the defined ranges of variations.
+        `model` is the subclass of `OptionPricingModel` that will be used to compute the output&#39;s
+        values.
+
+        **to_dict** : return a dictionary containing the attributes&#39; values of the
+        defined `Option` object.
     &#34;&#34;&#34;
     args_to_attr = {
         &#34;name&#34;: &#34;name&#34;,
@@ -92,9 +92,6 @@ class Option:
             time_to_maturity: float,
             volatility: float,
     ):
-        # todo: maybe add &#39;q&#39; to the arguments, the dividend yield of the underlying
-        # todo: complete/adapt the framework for asian options
-        # todo: scripts to estimate drift ? implied volatility ?
         self.name = name
 
         if option_type not in [&#34;call&#34;, &#34;put&#34;]:
@@ -113,6 +110,10 @@ class Option:
         log.info(f&#34;Option instance created with attributes:\n{self.to_dict()}\n&#34;)
 
     def to_dict(self) -&gt; dict:
+        &#34;&#34;&#34;
+        Returns:
+            dict: a dictionary with the values of the different attributes.
+        &#34;&#34;&#34;
         # ################# Old Method ################
         # return {
         #     &#34;name&#34;: self.name,
@@ -135,13 +136,50 @@ class Option:
     #     log.info(f&#34;Finished computing option&#39;s pay-off![Pay-Off = {pay_off}]\n&#34;)
     #     return pay_off
 
+    @staticmethod
+    def check_option_pricing_kwargs(model: Type[OptionPricingModel]):
+        &#34;&#34;&#34;
+        Display log with potential additional key-word arguments that need to be specified
+        when using a certain `model`.
+        Args:
+            model (Type[OptionPricingModel]): subclass of `OptionPricingModel`.
+
+        Returns:
+            None: will display a warning message if extra arguments are required and log level is set to DEBUG.
+        &#34;&#34;&#34;
+        init_arguments = inspect.signature(model.__init__).parameters
+        init_arguments_names = [param for param in init_arguments]
+        init_arguments_names.remove(&#34;self&#34;)
+        init_arguments_names.remove(&#34;option&#34;)
+        if len(init_arguments_names) &gt; 0:
+            log.warning(f&#34;The model {model}&#34;
+                        f&#34; requires to pass the following additional arguments to the function:&#34;
+                        f&#34;\n{init_arguments_names}&#34;)
+
     def compute_price(self, model: Type[OptionPricingModel], **kwargs) -&gt; float:
-        # Check if necessary additional key-word arguments to be passed in the function
-        check_option_pricing_kwargs(model)
+        &#34;&#34;&#34;
+        Estimate the price of the option using the `model` approach.
+        Args:
+            model (Type[OptionPricingModel]): subclass of `OptionPricingModel` that will be used to compute option&#39;s price.
+            **kwargs: potentially required extra arguments depending on the chosen `OptionPricingModel` subclass.
+
+        Returns:
+            float: computed option&#39;s price.
+        &#34;&#34;&#34;
+        self.check_option_pricing_kwargs(model)
         return model(self.to_dict(), **kwargs).compute_price()
 
     def compute_greeks(self, model: Type[OptionPricingModel], **kwargs) -&gt; dict:
-        check_option_pricing_kwargs(model)
+        &#34;&#34;&#34;
+        Estimate the greeks of the option using the `model` approach.
+        Args:
+            model (Type[OptionPricingModel]): subclass of `OptionPricingModel` that will be used to compute option&#39;s greeks.
+            **kwargs: potentially required extra arguments depending on the chosen `OptionPricingModel` subclass.
+
+        Returns:
+            dict: computed option&#39;s greeks.
+        &#34;&#34;&#34;
+        self.check_option_pricing_kwargs(model)
         return model(self.to_dict(), **kwargs).compute_greeks()
 
     def sensitivity(
@@ -153,6 +191,47 @@ class Option:
             num: int = 20,
             **kwargs,
     ) -&gt; np.ndarray:
+        &#34;&#34;&#34;
+        Perform sensitivity analysis of variable(s) in `variable` on `output` (option&#39;s price or specific
+        greeks...).
+        Args:
+            output (str): name of the output. Possible outputs are:
+                            &#34;option_price&#34;,
+                            &#34;delta&#34;,
+                            &#34;gamma&#34;,
+                            &#34;theta&#34;,
+                            &#34;vega&#34;,
+                            &#34;rho&#34;,
+            variable (Union[str, List[str]]): name or list of names of varying parameters for the sensitivity study.
+            variations (Union[Tuple, List[Tuple]]): i-th tuple contains the +/- percentages of variation to apply to the i-th parameter in `variable`.
+            model (Type[OptionPricingModel]): subclass of `OptionPricingModel` that will be used to compute the output.
+            num (int): number of subdivisions of the parameters&#39; variations ranges.
+            **kwargs: potentially required extra arguments depending on the chosen `OptionPricingModel` subclass.
+
+        Returns:
+            pd.DataFrame: pandas DataFrame object containing parameters and corresponding output values.
+
+        For instance, the following script will compute option&#39;s price for all combinations volatilities
+        and strike prices taken respectively in the ranges [vol - 50%, vol + 1000%] and
+        [strike price - 50%, strike price + 20%].
+
+        &gt;&gt;&gt; call_euro = Option(name=&#34;european&#34;, option_type=&#34;call&#34;, underlying_price=36, strike_price=40, time_to_maturity=1, risk_free_rate=0.06, volatility=0.2)
+        &gt;&gt;&gt; df_sens = call_euro.sensitivity(output=&#34;option_price&#34;, variable=[&#34;volatility&#34;, &#34;strike_price&#34;], variations=[(-50, 1000), (-50, 20)], num=20, model=Binomial, n_layers=10)
+        &gt;&gt;&gt; print(df_sens)
+                              volatility  strike_price  option_price
+                        0           0.1     20.000000      0.000000
+                        1           0.1     21.473684      0.000000
+                        2           0.1     22.947368      0.000000
+                        3           0.1     24.421053      0.000000
+                        4           0.1     25.894737      0.000000
+                        ..          ...           ...           ...
+                        395         2.2     42.105263     27.032943
+                        396         2.2     43.578947     28.115194
+                        397         2.2     45.052632     29.197446
+                        398         2.2     46.526316     30.279697
+                        399         2.2     48.000000     31.361948
+                        [400 rows x 3 columns]
+        &#34;&#34;&#34;
 
         # Adjust type of arguments if necessary
         if type(variable) == str:
@@ -192,24 +271,8 @@ class Option:
 
         return df
 
-# possible graphs:
-#       - greeks vs underlying asset&#39;s price
-#       - option price vs strike
-#       - option price vs maturity
-#       - payoff vs underlying asset&#39;s price
-#       - implied volatility surface (x=money-ness(S/K), y=time to maturity, z=implied volatility)
 
-
-log = logger
-
-if __name__ == &#34;__main__&#34;:
-    pass
-
-# todo: add standard error in MonteCarlo
-# todo: create a function StochasticProcess.from_option(Option, model_name)
-# todo: test uploading as a package in TestPyPi (with setup)
-# todo: add class/functions descriptions (DOCUMENTATION)
-# todo: generate automatic doc html formatter using adapted tool</code></pre>
+log = logger</code></pre>
 </details>
 </section>
 <section>
@@ -217,29 +280,6 @@ if __name__ == &#34;__main__&#34;:
 <section>
 </section>
 <section>
-<h2 class="section-title" id="header-functions">Functions</h2>
-<dl>
-<dt id="raop.options.option.check_option_pricing_kwargs"><code class="name flex">
-<span>def <span class="ident">check_option_pricing_kwargs</span></span>(<span>model: Type[<a title="raop.pricing_models.pricing_model.OptionPricingModel" href="../pricing_models/pricing_model.html#raop.pricing_models.pricing_model.OptionPricingModel">OptionPricingModel</a>])</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def check_option_pricing_kwargs(model: Type[OptionPricingModel]):
-    init_arguments = inspect.signature(model.__init__).parameters
-    init_arguments_names = [param for param in init_arguments]
-    init_arguments_names.remove(&#34;self&#34;)
-    init_arguments_names.remove(&#34;option&#34;)
-    if len(init_arguments_names) &gt; 0:
-        log.warning(f&#34;The model {model}&#34;
-                    f&#34; requires to pass the following additional arguments to the function:&#34;
-                    f&#34;\n{init_arguments_names}&#34;)</code></pre>
-</details>
-</dd>
-</dl>
 </section>
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
@@ -249,14 +289,15 @@ if __name__ == &#34;__main__&#34;:
 <span>(</span><span>name: str, option_type: str, underlying_price: float, strike_price: float, risk_free_rate: float, time_to_maturity: float, volatility: float)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Main class to model a stock option among the following types:
-- european
-- american
-&hellip;</p>
+<div class="desc"><p>Main class to model a stock option among the following types:</p>
+<ul>
+<li>european</li>
+<li>american</li>
+</ul>
 <h2 id="attributes">Attributes</h2>
 <dl>
 <dt><strong><code>name</code></strong> :&ensp;<code>str</code></dt>
-<dd>name of the option (its category): "european", "american", &hellip;</dd>
+<dd>name of the option (its category): "european" or "american".</dd>
 <dt><strong><code>option_type</code></strong> :&ensp;<code>str</code></dt>
 <dd>type of the option. Either "put" or "call".</dd>
 <dt><strong><code>underlying_price</code></strong> :&ensp;<code>float</code></dt>
@@ -271,11 +312,19 @@ if __name__ == &#34;__main__&#34;:
 <dd>volatility of the underlying asset price at t=0.</dd>
 </dl>
 <h2 id="methods">Methods</h2>
-<h1 id="todo-should-payoffs-be-kept">todo: should "payoffs" be kept ?</h1>
-<p>compute_price(): ???
-compute_greeks(): ???
-sensitivity(): ???
-to_dict(): ???</p></div>
+<p><strong>compute_price</strong> (<code>model</code>): return the price of the option estimated with a
+<code>model</code> selected among subclasses of <code>OptionPricingModel</code>.</p>
+<p><strong>compute_greeks</strong> (<code>model</code>): return the greeks of the option estimated with a <code>model</code>
+selected among subclasses of <code>OptionPricingModel</code>.</p>
+<p><strong>sensitivity</strong> (<code>output</code>, <code>variable</code>, <code>variations</code>, <code>model</code>, <code>num</code>): return a
+<code>pd.DataFrame</code> containing the estimated values of <code>output</code> (a string) when varying the
+values of the variables listed in <code>variable</code> by a certain percentage around the option's
+baseline values. This percentages of variations to be applied are listed in a list of tuples
+<code>variations</code>. <code>num</code> is the number of values subdividing the defined ranges of variations.
+<code>model</code> is the subclass of <code>OptionPricingModel</code> that will be used to compute the output's
+values.</p>
+<p><strong>to_dict</strong> : return a dictionary containing the attributes' values of the
+defined <code><a title="raop.options.option.Option" href="#raop.options.option.Option">Option</a></code> object.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -283,12 +332,12 @@ to_dict(): ???</p></div>
 <pre><code class="python">class Option:
     &#34;&#34;&#34;
     Main class to model a stock option among the following types:
+
     - european
     - american
-    ...
 
     Attributes:
-        name (str): name of the option (its category): &#34;european&#34;, &#34;american&#34;, ...
+        name (str): name of the option (its category): &#34;european&#34; or &#34;american&#34;.
         option_type (str): type of the option. Either &#34;put&#34; or &#34;call&#34;.
         underlying_price (float): price of the underlying asset at t=0 (when option is priced).
         strike_price (float): strike price of the option.
@@ -297,11 +346,22 @@ to_dict(): ???</p></div>
         volatility (float): volatility of the underlying asset price at t=0.
 
     Methods:
-        # todo: should &#34;payoffs&#34; be kept ?
-        compute_price(): ???
-        compute_greeks(): ???
-        sensitivity(): ???
-        to_dict(): ???
+        **compute_price** (`model`): return the price of the option estimated with a
+        `model` selected among subclasses of `OptionPricingModel`.
+
+        **compute_greeks** (`model`): return the greeks of the option estimated with a `model`
+        selected among subclasses of `OptionPricingModel`.
+
+        **sensitivity** (`output`, `variable`, `variations`, `model`, `num`): return a
+        `pd.DataFrame` containing the estimated values of `output` (a string) when varying the
+        values of the variables listed in `variable` by a certain percentage around the option&#39;s
+        baseline values. This percentages of variations to be applied are listed in a list of tuples
+        `variations`. `num` is the number of values subdividing the defined ranges of variations.
+        `model` is the subclass of `OptionPricingModel` that will be used to compute the output&#39;s
+        values.
+
+        **to_dict** : return a dictionary containing the attributes&#39; values of the
+        defined `Option` object.
     &#34;&#34;&#34;
     args_to_attr = {
         &#34;name&#34;: &#34;name&#34;,
@@ -323,9 +383,6 @@ to_dict(): ???</p></div>
             time_to_maturity: float,
             volatility: float,
     ):
-        # todo: maybe add &#39;q&#39; to the arguments, the dividend yield of the underlying
-        # todo: complete/adapt the framework for asian options
-        # todo: scripts to estimate drift ? implied volatility ?
         self.name = name
 
         if option_type not in [&#34;call&#34;, &#34;put&#34;]:
@@ -344,6 +401,10 @@ to_dict(): ???</p></div>
         log.info(f&#34;Option instance created with attributes:\n{self.to_dict()}\n&#34;)
 
     def to_dict(self) -&gt; dict:
+        &#34;&#34;&#34;
+        Returns:
+            dict: a dictionary with the values of the different attributes.
+        &#34;&#34;&#34;
         # ################# Old Method ################
         # return {
         #     &#34;name&#34;: self.name,
@@ -366,13 +427,50 @@ to_dict(): ???</p></div>
     #     log.info(f&#34;Finished computing option&#39;s pay-off![Pay-Off = {pay_off}]\n&#34;)
     #     return pay_off
 
+    @staticmethod
+    def check_option_pricing_kwargs(model: Type[OptionPricingModel]):
+        &#34;&#34;&#34;
+        Display log with potential additional key-word arguments that need to be specified
+        when using a certain `model`.
+        Args:
+            model (Type[OptionPricingModel]): subclass of `OptionPricingModel`.
+
+        Returns:
+            None: will display a warning message if extra arguments are required and log level is set to DEBUG.
+        &#34;&#34;&#34;
+        init_arguments = inspect.signature(model.__init__).parameters
+        init_arguments_names = [param for param in init_arguments]
+        init_arguments_names.remove(&#34;self&#34;)
+        init_arguments_names.remove(&#34;option&#34;)
+        if len(init_arguments_names) &gt; 0:
+            log.warning(f&#34;The model {model}&#34;
+                        f&#34; requires to pass the following additional arguments to the function:&#34;
+                        f&#34;\n{init_arguments_names}&#34;)
+
     def compute_price(self, model: Type[OptionPricingModel], **kwargs) -&gt; float:
-        # Check if necessary additional key-word arguments to be passed in the function
-        check_option_pricing_kwargs(model)
+        &#34;&#34;&#34;
+        Estimate the price of the option using the `model` approach.
+        Args:
+            model (Type[OptionPricingModel]): subclass of `OptionPricingModel` that will be used to compute option&#39;s price.
+            **kwargs: potentially required extra arguments depending on the chosen `OptionPricingModel` subclass.
+
+        Returns:
+            float: computed option&#39;s price.
+        &#34;&#34;&#34;
+        self.check_option_pricing_kwargs(model)
         return model(self.to_dict(), **kwargs).compute_price()
 
     def compute_greeks(self, model: Type[OptionPricingModel], **kwargs) -&gt; dict:
-        check_option_pricing_kwargs(model)
+        &#34;&#34;&#34;
+        Estimate the greeks of the option using the `model` approach.
+        Args:
+            model (Type[OptionPricingModel]): subclass of `OptionPricingModel` that will be used to compute option&#39;s greeks.
+            **kwargs: potentially required extra arguments depending on the chosen `OptionPricingModel` subclass.
+
+        Returns:
+            dict: computed option&#39;s greeks.
+        &#34;&#34;&#34;
+        self.check_option_pricing_kwargs(model)
         return model(self.to_dict(), **kwargs).compute_greeks()
 
     def sensitivity(
@@ -384,6 +482,47 @@ to_dict(): ???</p></div>
             num: int = 20,
             **kwargs,
     ) -&gt; np.ndarray:
+        &#34;&#34;&#34;
+        Perform sensitivity analysis of variable(s) in `variable` on `output` (option&#39;s price or specific
+        greeks...).
+        Args:
+            output (str): name of the output. Possible outputs are:
+                            &#34;option_price&#34;,
+                            &#34;delta&#34;,
+                            &#34;gamma&#34;,
+                            &#34;theta&#34;,
+                            &#34;vega&#34;,
+                            &#34;rho&#34;,
+            variable (Union[str, List[str]]): name or list of names of varying parameters for the sensitivity study.
+            variations (Union[Tuple, List[Tuple]]): i-th tuple contains the +/- percentages of variation to apply to the i-th parameter in `variable`.
+            model (Type[OptionPricingModel]): subclass of `OptionPricingModel` that will be used to compute the output.
+            num (int): number of subdivisions of the parameters&#39; variations ranges.
+            **kwargs: potentially required extra arguments depending on the chosen `OptionPricingModel` subclass.
+
+        Returns:
+            pd.DataFrame: pandas DataFrame object containing parameters and corresponding output values.
+
+        For instance, the following script will compute option&#39;s price for all combinations volatilities
+        and strike prices taken respectively in the ranges [vol - 50%, vol + 1000%] and
+        [strike price - 50%, strike price + 20%].
+
+        &gt;&gt;&gt; call_euro = Option(name=&#34;european&#34;, option_type=&#34;call&#34;, underlying_price=36, strike_price=40, time_to_maturity=1, risk_free_rate=0.06, volatility=0.2)
+        &gt;&gt;&gt; df_sens = call_euro.sensitivity(output=&#34;option_price&#34;, variable=[&#34;volatility&#34;, &#34;strike_price&#34;], variations=[(-50, 1000), (-50, 20)], num=20, model=Binomial, n_layers=10)
+        &gt;&gt;&gt; print(df_sens)
+                              volatility  strike_price  option_price
+                        0           0.1     20.000000      0.000000
+                        1           0.1     21.473684      0.000000
+                        2           0.1     22.947368      0.000000
+                        3           0.1     24.421053      0.000000
+                        4           0.1     25.894737      0.000000
+                        ..          ...           ...           ...
+                        395         2.2     42.105263     27.032943
+                        396         2.2     43.578947     28.115194
+                        397         2.2     45.052632     29.197446
+                        398         2.2     46.526316     30.279697
+                        399         2.2     48.000000     31.361948
+                        [400 rows x 3 columns]
+        &#34;&#34;&#34;
 
         # Adjust type of arguments if necessary
         if type(variable) == str:
@@ -430,19 +569,84 @@ to_dict(): ???</p></div>
 <div class="desc"></div>
 </dd>
 </dl>
+<h3>Static methods</h3>
+<dl>
+<dt id="raop.options.option.Option.check_option_pricing_kwargs"><code class="name flex">
+<span>def <span class="ident">check_option_pricing_kwargs</span></span>(<span>model: Type[<a title="raop.pricing_models.pricing_model.OptionPricingModel" href="../pricing_models/pricing_model.html#raop.pricing_models.pricing_model.OptionPricingModel">OptionPricingModel</a>])</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Display log with potential additional key-word arguments that need to be specified
+when using a certain <code>model</code>.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>model</code></strong> :&ensp;<code>Type[OptionPricingModel]</code></dt>
+<dd>subclass of <code>OptionPricingModel</code>.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>None</code></dt>
+<dd>will display a warning message if extra arguments are required and log level is set to DEBUG.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@staticmethod
+def check_option_pricing_kwargs(model: Type[OptionPricingModel]):
+    &#34;&#34;&#34;
+    Display log with potential additional key-word arguments that need to be specified
+    when using a certain `model`.
+    Args:
+        model (Type[OptionPricingModel]): subclass of `OptionPricingModel`.
+
+    Returns:
+        None: will display a warning message if extra arguments are required and log level is set to DEBUG.
+    &#34;&#34;&#34;
+    init_arguments = inspect.signature(model.__init__).parameters
+    init_arguments_names = [param for param in init_arguments]
+    init_arguments_names.remove(&#34;self&#34;)
+    init_arguments_names.remove(&#34;option&#34;)
+    if len(init_arguments_names) &gt; 0:
+        log.warning(f&#34;The model {model}&#34;
+                    f&#34; requires to pass the following additional arguments to the function:&#34;
+                    f&#34;\n{init_arguments_names}&#34;)</code></pre>
+</details>
+</dd>
+</dl>
 <h3>Methods</h3>
 <dl>
 <dt id="raop.options.option.Option.compute_greeks"><code class="name flex">
 <span>def <span class="ident">compute_greeks</span></span>(<span>self, model: Type[<a title="raop.pricing_models.pricing_model.OptionPricingModel" href="../pricing_models/pricing_model.html#raop.pricing_models.pricing_model.OptionPricingModel">OptionPricingModel</a>], **kwargs) ‑> dict</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Estimate the greeks of the option using the <code>model</code> approach.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>model</code></strong> :&ensp;<code>Type[OptionPricingModel]</code></dt>
+<dd>subclass of <code>OptionPricingModel</code> that will be used to compute option's greeks.</dd>
+<dt><strong><code>**kwargs</code></strong></dt>
+<dd>potentially required extra arguments depending on the chosen <code>OptionPricingModel</code> subclass.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>dict</code></dt>
+<dd>computed option's greeks.</dd>
+</dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def compute_greeks(self, model: Type[OptionPricingModel], **kwargs) -&gt; dict:
-    check_option_pricing_kwargs(model)
+    &#34;&#34;&#34;
+    Estimate the greeks of the option using the `model` approach.
+    Args:
+        model (Type[OptionPricingModel]): subclass of `OptionPricingModel` that will be used to compute option&#39;s greeks.
+        **kwargs: potentially required extra arguments depending on the chosen `OptionPricingModel` subclass.
+
+    Returns:
+        dict: computed option&#39;s greeks.
+    &#34;&#34;&#34;
+    self.check_option_pricing_kwargs(model)
     return model(self.to_dict(), **kwargs).compute_greeks()</code></pre>
 </details>
 </dd>
@@ -450,14 +654,34 @@ to_dict(): ???</p></div>
 <span>def <span class="ident">compute_price</span></span>(<span>self, model: Type[<a title="raop.pricing_models.pricing_model.OptionPricingModel" href="../pricing_models/pricing_model.html#raop.pricing_models.pricing_model.OptionPricingModel">OptionPricingModel</a>], **kwargs) ‑> float</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Estimate the price of the option using the <code>model</code> approach.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>model</code></strong> :&ensp;<code>Type[OptionPricingModel]</code></dt>
+<dd>subclass of <code>OptionPricingModel</code> that will be used to compute option's price.</dd>
+<dt><strong><code>**kwargs</code></strong></dt>
+<dd>potentially required extra arguments depending on the chosen <code>OptionPricingModel</code> subclass.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>float</code></dt>
+<dd>computed option's price.</dd>
+</dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def compute_price(self, model: Type[OptionPricingModel], **kwargs) -&gt; float:
-    # Check if necessary additional key-word arguments to be passed in the function
-    check_option_pricing_kwargs(model)
+    &#34;&#34;&#34;
+    Estimate the price of the option using the `model` approach.
+    Args:
+        model (Type[OptionPricingModel]): subclass of `OptionPricingModel` that will be used to compute option&#39;s price.
+        **kwargs: potentially required extra arguments depending on the chosen `OptionPricingModel` subclass.
+
+    Returns:
+        float: computed option&#39;s price.
+    &#34;&#34;&#34;
+    self.check_option_pricing_kwargs(model)
     return model(self.to_dict(), **kwargs).compute_price()</code></pre>
 </details>
 </dd>
@@ -465,7 +689,54 @@ to_dict(): ???</p></div>
 <span>def <span class="ident">sensitivity</span></span>(<span>self, output: str, variable: Union[str, List[str]], variations: Union[Tuple, List[Tuple]], model: Type[<a title="raop.pricing_models.pricing_model.OptionPricingModel" href="../pricing_models/pricing_model.html#raop.pricing_models.pricing_model.OptionPricingModel">OptionPricingModel</a>], num: int = 20, **kwargs) ‑> numpy.ndarray</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Perform sensitivity analysis of variable(s) in <code>variable</code> on <code>output</code> (option's price or specific
+greeks&hellip;).</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>output</code></strong> :&ensp;<code>str</code></dt>
+<dd>name of the output. Possible outputs are:
+"option_price",
+"delta",
+"gamma",
+"theta",
+"vega",
+"rho",</dd>
+<dt><strong><code>variable</code></strong> :&ensp;<code>Union[str, List[str]]</code></dt>
+<dd>name or list of names of varying parameters for the sensitivity study.</dd>
+<dt><strong><code>variations</code></strong> :&ensp;<code>Union[Tuple, List[Tuple]]</code></dt>
+<dd>i-th tuple contains the +/- percentages of variation to apply to the i-th parameter in <code>variable</code>.</dd>
+<dt><strong><code>model</code></strong> :&ensp;<code>Type[OptionPricingModel]</code></dt>
+<dd>subclass of <code>OptionPricingModel</code> that will be used to compute the output.</dd>
+<dt><strong><code>num</code></strong> :&ensp;<code>int</code></dt>
+<dd>number of subdivisions of the parameters' variations ranges.</dd>
+<dt><strong><code>**kwargs</code></strong></dt>
+<dd>potentially required extra arguments depending on the chosen <code>OptionPricingModel</code> subclass.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>pd.DataFrame</code></dt>
+<dd>pandas DataFrame object containing parameters and corresponding output values.</dd>
+</dl>
+<p>For instance, the following script will compute option's price for all combinations volatilities
+and strike prices taken respectively in the ranges [vol - 50%, vol + 1000%] and
+[strike price - 50%, strike price + 20%].</p>
+<pre><code class="language-python-repl">&gt;&gt;&gt; call_euro = Option(name=&quot;european&quot;, option_type=&quot;call&quot;, underlying_price=36, strike_price=40, time_to_maturity=1, risk_free_rate=0.06, volatility=0.2)
+&gt;&gt;&gt; df_sens = call_euro.sensitivity(output=&quot;option_price&quot;, variable=[&quot;volatility&quot;, &quot;strike_price&quot;], variations=[(-50, 1000), (-50, 20)], num=20, model=Binomial, n_layers=10)
+&gt;&gt;&gt; print(df_sens)
+                      volatility  strike_price  option_price
+                0           0.1     20.000000      0.000000
+                1           0.1     21.473684      0.000000
+                2           0.1     22.947368      0.000000
+                3           0.1     24.421053      0.000000
+                4           0.1     25.894737      0.000000
+                ..          ...           ...           ...
+                395         2.2     42.105263     27.032943
+                396         2.2     43.578947     28.115194
+                397         2.2     45.052632     29.197446
+                398         2.2     46.526316     30.279697
+                399         2.2     48.000000     31.361948
+                [400 rows x 3 columns]
+</code></pre></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -479,6 +750,47 @@ to_dict(): ???</p></div>
         num: int = 20,
         **kwargs,
 ) -&gt; np.ndarray:
+    &#34;&#34;&#34;
+    Perform sensitivity analysis of variable(s) in `variable` on `output` (option&#39;s price or specific
+    greeks...).
+    Args:
+        output (str): name of the output. Possible outputs are:
+                        &#34;option_price&#34;,
+                        &#34;delta&#34;,
+                        &#34;gamma&#34;,
+                        &#34;theta&#34;,
+                        &#34;vega&#34;,
+                        &#34;rho&#34;,
+        variable (Union[str, List[str]]): name or list of names of varying parameters for the sensitivity study.
+        variations (Union[Tuple, List[Tuple]]): i-th tuple contains the +/- percentages of variation to apply to the i-th parameter in `variable`.
+        model (Type[OptionPricingModel]): subclass of `OptionPricingModel` that will be used to compute the output.
+        num (int): number of subdivisions of the parameters&#39; variations ranges.
+        **kwargs: potentially required extra arguments depending on the chosen `OptionPricingModel` subclass.
+
+    Returns:
+        pd.DataFrame: pandas DataFrame object containing parameters and corresponding output values.
+
+    For instance, the following script will compute option&#39;s price for all combinations volatilities
+    and strike prices taken respectively in the ranges [vol - 50%, vol + 1000%] and
+    [strike price - 50%, strike price + 20%].
+
+    &gt;&gt;&gt; call_euro = Option(name=&#34;european&#34;, option_type=&#34;call&#34;, underlying_price=36, strike_price=40, time_to_maturity=1, risk_free_rate=0.06, volatility=0.2)
+    &gt;&gt;&gt; df_sens = call_euro.sensitivity(output=&#34;option_price&#34;, variable=[&#34;volatility&#34;, &#34;strike_price&#34;], variations=[(-50, 1000), (-50, 20)], num=20, model=Binomial, n_layers=10)
+    &gt;&gt;&gt; print(df_sens)
+                          volatility  strike_price  option_price
+                    0           0.1     20.000000      0.000000
+                    1           0.1     21.473684      0.000000
+                    2           0.1     22.947368      0.000000
+                    3           0.1     24.421053      0.000000
+                    4           0.1     25.894737      0.000000
+                    ..          ...           ...           ...
+                    395         2.2     42.105263     27.032943
+                    396         2.2     43.578947     28.115194
+                    397         2.2     45.052632     29.197446
+                    398         2.2     46.526316     30.279697
+                    399         2.2     48.000000     31.361948
+                    [400 rows x 3 columns]
+    &#34;&#34;&#34;
 
     # Adjust type of arguments if necessary
     if type(variable) == str:
@@ -523,12 +835,20 @@ to_dict(): ???</p></div>
 <span>def <span class="ident">to_dict</span></span>(<span>self) ‑> dict</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><h2 id="returns">Returns</h2>
+<dl>
+<dt><code>dict</code></dt>
+<dd>a dictionary with the values of the different attributes.</dd>
+</dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def to_dict(self) -&gt; dict:
+    &#34;&#34;&#34;
+    Returns:
+        dict: a dictionary with the values of the different attributes.
+    &#34;&#34;&#34;
     # ################# Old Method ################
     # return {
     #     &#34;name&#34;: self.name,
@@ -559,17 +879,13 @@ to_dict(): ???</p></div>
 <li><code><a title="raop.options" href="index.html">raop.options</a></code></li>
 </ul>
 </li>
-<li><h3><a href="#header-functions">Functions</a></h3>
-<ul class="">
-<li><code><a title="raop.options.option.check_option_pricing_kwargs" href="#raop.options.option.check_option_pricing_kwargs">check_option_pricing_kwargs</a></code></li>
-</ul>
-</li>
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
 <li>
 <h4><code><a title="raop.options.option.Option" href="#raop.options.option.Option">Option</a></code></h4>
 <ul class="">
 <li><code><a title="raop.options.option.Option.args_to_attr" href="#raop.options.option.Option.args_to_attr">args_to_attr</a></code></li>
+<li><code><a title="raop.options.option.Option.check_option_pricing_kwargs" href="#raop.options.option.Option.check_option_pricing_kwargs">check_option_pricing_kwargs</a></code></li>
 <li><code><a title="raop.options.option.Option.compute_greeks" href="#raop.options.option.Option.compute_greeks">compute_greeks</a></code></li>
 <li><code><a title="raop.options.option.Option.compute_price" href="#raop.options.option.Option.compute_price">compute_price</a></code></li>
 <li><code><a title="raop.options.option.Option.sensitivity" href="#raop.options.option.Option.sensitivity">sensitivity</a></code></li>

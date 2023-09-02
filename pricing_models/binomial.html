@@ -39,7 +39,6 @@ from typing import Union
 
 
 class Binomial(OptionPricingModel):
-    # todo: if possible accelerate even more by using C# or C++ code (main problem: storing all variables)
     def __init__(self, option, n_layers: int):
         super().__init__(option)
 
@@ -49,7 +48,7 @@ class Binomial(OptionPricingModel):
             log.error(error_msg)
             raise ValueError(error_msg)
 
-        self.name = &#34;Binomial [Cox-Ross-Rubinstein]&#34;  # todo: maybe add other sub-models: Jarrow-Rudd ? Leisen-Reimer ?
+        self.name = &#34;Binomial [Cox-Ross-Rubinstein]&#34;
         self.n_layers = n_layers
 
     def compute_price(
@@ -212,7 +211,6 @@ class Binomial(OptionPricingModel):
             other_r: float = None,
             other_time_to_maturity: float = None
     ) -&gt; float:
-        # todo: add q in some way if possible: (r-q) instead of r
         dt = self._dt(other_time_to_maturity)
         u, d = self._u(other_sigma), self._d(other_sigma)
         r = self.option.r
@@ -257,7 +255,6 @@ log = logger</code></pre>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class Binomial(OptionPricingModel):
-    # todo: if possible accelerate even more by using C# or C++ code (main problem: storing all variables)
     def __init__(self, option, n_layers: int):
         super().__init__(option)
 
@@ -267,7 +264,7 @@ log = logger</code></pre>
             log.error(error_msg)
             raise ValueError(error_msg)
 
-        self.name = &#34;Binomial [Cox-Ross-Rubinstein]&#34;  # todo: maybe add other sub-models: Jarrow-Rudd ? Leisen-Reimer ?
+        self.name = &#34;Binomial [Cox-Ross-Rubinstein]&#34;
         self.n_layers = n_layers
 
     def compute_price(
@@ -430,7 +427,6 @@ log = logger</code></pre>
             other_r: float = None,
             other_time_to_maturity: float = None
     ) -&gt; float:
-        # todo: add q in some way if possible: (r-q) instead of r
         dt = self._dt(other_time_to_maturity)
         u, d = self._u(other_sigma), self._d(other_sigma)
         r = self.option.r
