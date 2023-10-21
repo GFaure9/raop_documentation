@@ -12,6 +12,7 @@
 <style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
 <style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
 <style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS_CHTML" integrity="sha256-kZafAc6mZvK3W3v1pHOcUix30OHQN6pU/NO2oFkqZVw=" crossorigin></script>
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
 <script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
 </head>
@@ -35,6 +36,26 @@ from scipy.stats import norm
 
 
 class BlackScholes(OptionPricingModel):
+    &#34;&#34;&#34;
+    Subclass of `OptionPricingModel` defining a pricing model that uses the Black-Scholes model.
+
+    Attributes:
+        option (collections.namedtuple): its keys are:
+
+                &#34;name&#34;
+                &#34;option_type&#34;
+                &#34;s&#34;
+                &#34;k&#34;
+                &#34;r&#34;
+                &#34;time_to_maturity&#34;
+                &#34;sigma&#34;
+        name (str): name of the pricing model. Default is &#34;Black-Scholes&#34;.
+
+    Methods:
+        **compute_price**: estimate the price of the option described in `option` using Black-Scholes model.
+
+        **compute_greeks**: estimate the greeks of the option described in `option` using Black-Scholes model.
+    &#34;&#34;&#34;
     def __init__(self, option):
         super().__init__(option)
 
@@ -46,7 +67,25 @@ class BlackScholes(OptionPricingModel):
 
         self.name = &#34;Black-Scholes&#34;
 
-    def compute_price(self):
+    def compute_price(self) -&gt; float:
+        &#34;&#34;&#34;
+        Compute `self.option` &#39;s price using Black-Scholes model.
+
+        In this model, prices of European call and put options are given by:
+        $$Call(S, K) = N(d_1) S - N(d_2) K e^{-r (T - t)}$$
+        $$Put(S, K) = -N(-d_1) S + N(-d_2) K e^{-r (T - t)}$$
+
+        With:
+        $$N(x) := \mathbb{P}(X \leq x)  \quad   X \sim \mathcal{N}(0, 1)$$
+        $$d_1 = ln(\\frac{S}{K}) + \\frac{r + \\frac{\sigma^2}{2}}{\sigma \sqrt{T - t}}$$
+        $$d_2 = d_1 - \sigma \sqrt{T - t}$$
+
+        For further details , see for example
+        [the Black-Scholes Model Wikipedia page](https://en.wikipedia.org/wiki/Black-Scholes_model).
+
+        Returns:
+            float: option&#39;s price estimated with Black-Scholes model.
+        &#34;&#34;&#34;
         log.info(f&#34;Started computing option&#39;s price with {self.name} method...&#34;)
 
         opt = self.option
@@ -67,6 +106,31 @@ class BlackScholes(OptionPricingModel):
         return price
 
     def compute_greeks(self) -&gt; dict:
+        &#34;&#34;&#34;
+        Compute `self.option` &#39;s greeks using Black-Scholes model.
+
+        In this model, greeks of European options are given by:
+        $$\delta^{Call} = N(d_1) \quad \\text{and} \quad \delta^{Put} = N(d_1) - 1$$
+        $$\gamma = \\frac{N&#39;(d_1)}{S \sigma \sqrt{T - t}}$$
+        $$\\nu = S N&#39;(d_1) \sqrt{T - t}$$
+        $$\\theta^{Call} = \\theta_0 - r K e^{-r (T - t)} N(d_2) \quad \\text{and} \quad \\theta^{Put} = \\theta_0 + r K e^{-r (T - t)} N(-d_2)$$
+        $$\\rho^{Call} = \\rho_0 N(d_2) \quad \\text{and} \quad \\rho^{Put} = -\\rho_0 N(-d_2)$$
+
+        With:
+        $$\\theta_0 = \\frac{S N&#39;(d_1) \sigma}{2 \sqrt{T - t}}$$
+        $$\\rho_0 = K (T - t) e^{-r (T - t)}$$
+
+        See `BlackScholes.compute_price` method for other variables definitions.
+
+        Returns:
+            dict: dictionary containing values of `self.option` &#39;s greeks estimated with Black-Scholes model. Its keys are:
+
+                    &#34;delta&#34;
+                    &#34;gamma&#34;
+                    &#34;vega&#34;
+                    &#34;theta&#34;
+                    &#34;rho&#34;
+        &#34;&#34;&#34;
         log.info(f&#34;Started computing option&#39;s Greeks with {self.name} method...&#34;)
 
         greeks = {
@@ -98,7 +162,7 @@ class BlackScholes(OptionPricingModel):
         opt = self.option
         s, sigma, dt = opt.s, opt.sigma, opt.time_to_maturity
 
-        return self.norm_cdf_derivative(self._d1)/(s * sigma * np.sqrt(dt))
+        return self._norm_cdf_derivative(self._d1)/(s * sigma * np.sqrt(dt))
 
     @property
     def _vega(self) -&gt; float:
@@ -107,7 +171,7 @@ class BlackScholes(OptionPricingModel):
         opt = self.option
         s, dt = opt.s, opt.time_to_maturity
 
-        return s * self.norm_cdf_derivative(self._d1) * np.sqrt(dt)
+        return s * self._norm_cdf_derivative(self._d1) * np.sqrt(dt)
 
     @property
     def _theta(self) -&gt; float:
@@ -116,7 +180,7 @@ class BlackScholes(OptionPricingModel):
         opt = self.option
         s, k, r, sigma, dt = opt.s, opt.k, opt.r, opt.sigma, opt.time_to_maturity
 
-        theta0 = - (s * self.norm_cdf_derivative(self._d1) * sigma)/(2 * np.sqrt(dt))
+        theta0 = - (s * self._norm_cdf_derivative(self._d1) * sigma)/(2 * np.sqrt(dt))
 
         if opt.option_type == &#34;call&#34;:
             return theta0 - r * k * np.exp(-r * dt) * norm.cdf(self._d2)
@@ -138,7 +202,7 @@ class BlackScholes(OptionPricingModel):
             return -rho0 * norm.cdf(-self._d2)
 
     @staticmethod
-    def norm_cdf_derivative(x):
+    def _norm_cdf_derivative(x):
         return np.exp(-x**2 / 2) / np.sqrt(2 * np.pi)
 
     @property
@@ -173,12 +237,50 @@ log = logger</code></pre>
 <span>(</span><span>option)</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Subclass of <code>OptionPricingModel</code> defining a pricing model that uses the Black-Scholes model.</p>
+<h2 id="attributes">Attributes</h2>
+<dl>
+<dt><strong><code>option</code></strong> :&ensp;<code>collections.namedtuple</code></dt>
+<dd>its keys are:<pre><code>"name"
+"option_type"
+"s"
+"k"
+"r"
+"time_to_maturity"
+"sigma"
+</code></pre>
+</dd>
+<dt><strong><code>name</code></strong> :&ensp;<code>str</code></dt>
+<dd>name of the pricing model. Default is "Black-Scholes".</dd>
+</dl>
+<h2 id="methods">Methods</h2>
+<p><strong>compute_price</strong>: estimate the price of the option described in <code>option</code> using Black-Scholes model.</p>
+<p><strong>compute_greeks</strong>: estimate the greeks of the option described in <code>option</code> using Black-Scholes model.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class BlackScholes(OptionPricingModel):
+    &#34;&#34;&#34;
+    Subclass of `OptionPricingModel` defining a pricing model that uses the Black-Scholes model.
+
+    Attributes:
+        option (collections.namedtuple): its keys are:
+
+                &#34;name&#34;
+                &#34;option_type&#34;
+                &#34;s&#34;
+                &#34;k&#34;
+                &#34;r&#34;
+                &#34;time_to_maturity&#34;
+                &#34;sigma&#34;
+        name (str): name of the pricing model. Default is &#34;Black-Scholes&#34;.
+
+    Methods:
+        **compute_price**: estimate the price of the option described in `option` using Black-Scholes model.
+
+        **compute_greeks**: estimate the greeks of the option described in `option` using Black-Scholes model.
+    &#34;&#34;&#34;
     def __init__(self, option):
         super().__init__(option)
 
@@ -190,7 +292,25 @@ log = logger</code></pre>
 
         self.name = &#34;Black-Scholes&#34;
 
-    def compute_price(self):
+    def compute_price(self) -&gt; float:
+        &#34;&#34;&#34;
+        Compute `self.option` &#39;s price using Black-Scholes model.
+
+        In this model, prices of European call and put options are given by:
+        $$Call(S, K) = N(d_1) S - N(d_2) K e^{-r (T - t)}$$
+        $$Put(S, K) = -N(-d_1) S + N(-d_2) K e^{-r (T - t)}$$
+
+        With:
+        $$N(x) := \mathbb{P}(X \leq x)  \quad   X \sim \mathcal{N}(0, 1)$$
+        $$d_1 = ln(\\frac{S}{K}) + \\frac{r + \\frac{\sigma^2}{2}}{\sigma \sqrt{T - t}}$$
+        $$d_2 = d_1 - \sigma \sqrt{T - t}$$
+
+        For further details , see for example
+        [the Black-Scholes Model Wikipedia page](https://en.wikipedia.org/wiki/Black-Scholes_model).
+
+        Returns:
+            float: option&#39;s price estimated with Black-Scholes model.
+        &#34;&#34;&#34;
         log.info(f&#34;Started computing option&#39;s price with {self.name} method...&#34;)
 
         opt = self.option
@@ -211,6 +331,31 @@ log = logger</code></pre>
         return price
 
     def compute_greeks(self) -&gt; dict:
+        &#34;&#34;&#34;
+        Compute `self.option` &#39;s greeks using Black-Scholes model.
+
+        In this model, greeks of European options are given by:
+        $$\delta^{Call} = N(d_1) \quad \\text{and} \quad \delta^{Put} = N(d_1) - 1$$
+        $$\gamma = \\frac{N&#39;(d_1)}{S \sigma \sqrt{T - t}}$$
+        $$\\nu = S N&#39;(d_1) \sqrt{T - t}$$
+        $$\\theta^{Call} = \\theta_0 - r K e^{-r (T - t)} N(d_2) \quad \\text{and} \quad \\theta^{Put} = \\theta_0 + r K e^{-r (T - t)} N(-d_2)$$
+        $$\\rho^{Call} = \\rho_0 N(d_2) \quad \\text{and} \quad \\rho^{Put} = -\\rho_0 N(-d_2)$$
+
+        With:
+        $$\\theta_0 = \\frac{S N&#39;(d_1) \sigma}{2 \sqrt{T - t}}$$
+        $$\\rho_0 = K (T - t) e^{-r (T - t)}$$
+
+        See `BlackScholes.compute_price` method for other variables definitions.
+
+        Returns:
+            dict: dictionary containing values of `self.option` &#39;s greeks estimated with Black-Scholes model. Its keys are:
+
+                    &#34;delta&#34;
+                    &#34;gamma&#34;
+                    &#34;vega&#34;
+                    &#34;theta&#34;
+                    &#34;rho&#34;
+        &#34;&#34;&#34;
         log.info(f&#34;Started computing option&#39;s Greeks with {self.name} method...&#34;)
 
         greeks = {
@@ -242,7 +387,7 @@ log = logger</code></pre>
         opt = self.option
         s, sigma, dt = opt.s, opt.sigma, opt.time_to_maturity
 
-        return self.norm_cdf_derivative(self._d1)/(s * sigma * np.sqrt(dt))
+        return self._norm_cdf_derivative(self._d1)/(s * sigma * np.sqrt(dt))
 
     @property
     def _vega(self) -&gt; float:
@@ -251,7 +396,7 @@ log = logger</code></pre>
         opt = self.option
         s, dt = opt.s, opt.time_to_maturity
 
-        return s * self.norm_cdf_derivative(self._d1) * np.sqrt(dt)
+        return s * self._norm_cdf_derivative(self._d1) * np.sqrt(dt)
 
     @property
     def _theta(self) -&gt; float:
@@ -260,7 +405,7 @@ log = logger</code></pre>
         opt = self.option
         s, k, r, sigma, dt = opt.s, opt.k, opt.r, opt.sigma, opt.time_to_maturity
 
-        theta0 = - (s * self.norm_cdf_derivative(self._d1) * sigma)/(2 * np.sqrt(dt))
+        theta0 = - (s * self._norm_cdf_derivative(self._d1) * sigma)/(2 * np.sqrt(dt))
 
         if opt.option_type == &#34;call&#34;:
             return theta0 - r * k * np.exp(-r * dt) * norm.cdf(self._d2)
@@ -282,7 +427,7 @@ log = logger</code></pre>
             return -rho0 * norm.cdf(-self._d2)
 
     @staticmethod
-    def norm_cdf_derivative(x):
+    def _norm_cdf_derivative(x):
         return np.exp(-x**2 / 2) / np.sqrt(2 * np.pi)
 
     @property
@@ -303,35 +448,64 @@ log = logger</code></pre>
 <ul class="hlist">
 <li><a title="raop.pricing_models.pricing_model.OptionPricingModel" href="pricing_model.html#raop.pricing_models.pricing_model.OptionPricingModel">OptionPricingModel</a></li>
 </ul>
-<h3>Static methods</h3>
-<dl>
-<dt id="raop.pricing_models.black_scholes.BlackScholes.norm_cdf_derivative"><code class="name flex">
-<span>def <span class="ident">norm_cdf_derivative</span></span>(<span>x)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@staticmethod
-def norm_cdf_derivative(x):
-    return np.exp(-x**2 / 2) / np.sqrt(2 * np.pi)</code></pre>
-</details>
-</dd>
-</dl>
 <h3>Methods</h3>
 <dl>
 <dt id="raop.pricing_models.black_scholes.BlackScholes.compute_greeks"><code class="name flex">
 <span>def <span class="ident">compute_greeks</span></span>(<span>self) ‑> dict</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Compute <code>self.option</code> 's greeks using Black-Scholes model.</p>
+<p>In this model, greeks of European options are given by:
+<span><span class="MathJax_Preview">\delta^{Call} = N(d_1) \quad \text{and} \quad \delta^{Put} = N(d_1) - 1</span><script type="math/tex; mode=display">\delta^{Call} = N(d_1) \quad \text{and} \quad \delta^{Put} = N(d_1) - 1</script></span>
+<span><span class="MathJax_Preview">\gamma = \frac{N'(d_1)}{S \sigma \sqrt{T - t}}</span><script type="math/tex; mode=display">\gamma = \frac{N'(d_1)}{S \sigma \sqrt{T - t}}</script></span>
+<span><span class="MathJax_Preview">\nu = S N'(d_1) \sqrt{T - t}</span><script type="math/tex; mode=display">\nu = S N'(d_1) \sqrt{T - t}</script></span>
+<span><span class="MathJax_Preview">\theta^{Call} = \theta_0 - r K e^{-r (T - t)} N(d_2) \quad \text{and} \quad \theta^{Put} = \theta_0 + r K e^{-r (T - t)} N(-d_2)</span><script type="math/tex; mode=display">\theta^{Call} = \theta_0 - r K e^{-r (T - t)} N(d_2) \quad \text{and} \quad \theta^{Put} = \theta_0 + r K e^{-r (T - t)} N(-d_2)</script></span>
+<span><span class="MathJax_Preview">\rho^{Call} = \rho_0 N(d_2) \quad \text{and} \quad \rho^{Put} = -\rho_0 N(-d_2)</span><script type="math/tex; mode=display">\rho^{Call} = \rho_0 N(d_2) \quad \text{and} \quad \rho^{Put} = -\rho_0 N(-d_2)</script></span></p>
+<p>With:
+<span><span class="MathJax_Preview">\theta_0 = \frac{S N'(d_1) \sigma}{2 \sqrt{T - t}}</span><script type="math/tex; mode=display">\theta_0 = \frac{S N'(d_1) \sigma}{2 \sqrt{T - t}}</script></span>
+<span><span class="MathJax_Preview">\rho_0 = K (T - t) e^{-r (T - t)}</span><script type="math/tex; mode=display">\rho_0 = K (T - t) e^{-r (T - t)}</script></span></p>
+<p>See <code><a title="raop.pricing_models.black_scholes.BlackScholes.compute_price" href="#raop.pricing_models.black_scholes.BlackScholes.compute_price">BlackScholes.compute_price()</a></code> method for other variables definitions.</p>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>dict</code></dt>
+<dd>dictionary containing values of <code>self.option</code> 's greeks estimated with Black-Scholes model. Its keys are:<pre><code>"delta"
+"gamma"
+"vega"
+"theta"
+"rho"
+</code></pre>
+</dd>
+</dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def compute_greeks(self) -&gt; dict:
+    &#34;&#34;&#34;
+    Compute `self.option` &#39;s greeks using Black-Scholes model.
+
+    In this model, greeks of European options are given by:
+    $$\delta^{Call} = N(d_1) \quad \\text{and} \quad \delta^{Put} = N(d_1) - 1$$
+    $$\gamma = \\frac{N&#39;(d_1)}{S \sigma \sqrt{T - t}}$$
+    $$\\nu = S N&#39;(d_1) \sqrt{T - t}$$
+    $$\\theta^{Call} = \\theta_0 - r K e^{-r (T - t)} N(d_2) \quad \\text{and} \quad \\theta^{Put} = \\theta_0 + r K e^{-r (T - t)} N(-d_2)$$
+    $$\\rho^{Call} = \\rho_0 N(d_2) \quad \\text{and} \quad \\rho^{Put} = -\\rho_0 N(-d_2)$$
+
+    With:
+    $$\\theta_0 = \\frac{S N&#39;(d_1) \sigma}{2 \sqrt{T - t}}$$
+    $$\\rho_0 = K (T - t) e^{-r (T - t)}$$
+
+    See `BlackScholes.compute_price` method for other variables definitions.
+
+    Returns:
+        dict: dictionary containing values of `self.option` &#39;s greeks estimated with Black-Scholes model. Its keys are:
+
+                &#34;delta&#34;
+                &#34;gamma&#34;
+                &#34;vega&#34;
+                &#34;theta&#34;
+                &#34;rho&#34;
+    &#34;&#34;&#34;
     log.info(f&#34;Started computing option&#39;s Greeks with {self.name} method...&#34;)
 
     greeks = {
@@ -347,15 +521,51 @@ def norm_cdf_derivative(x):
 </details>
 </dd>
 <dt id="raop.pricing_models.black_scholes.BlackScholes.compute_price"><code class="name flex">
-<span>def <span class="ident">compute_price</span></span>(<span>self)</span>
+<span>def <span class="ident">compute_price</span></span>(<span>self) ‑> float</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Compute <code>self.option</code> 's price using Black-Scholes model.</p>
+<p>In this model, prices of European call and put options are given by:
+<span><span class="MathJax_Preview">Call(S, K) = N(d_1) S - N(d_2) K e^{-r (T - t)}</span><script type="math/tex; mode=display">Call(S, K) = N(d_1) S - N(d_2) K e^{-r (T - t)}</script></span>
+<span><span class="MathJax_Preview">Put(S, K) = -N(-d_1) S + N(-d_2) K e^{-r (T - t)}</span><script type="math/tex; mode=display">Put(S, K) = -N(-d_1) S + N(-d_2) K e^{-r (T - t)}</script></span></p>
+<p>With:
+<span><span class="MathJax_Preview">N(x) := \mathbb{P}(X \leq x)
+\quad
+X \sim \mathcal{N}(0, 1)</span><script type="math/tex; mode=display">N(x) := \mathbb{P}(X \leq x)
+\quad
+X \sim \mathcal{N}(0, 1)</script></span>
+<span><span class="MathJax_Preview">d_1 = ln(\frac{S}{K}) + \frac{r + \frac{\sigma^2}{2}}{\sigma \sqrt{T - t}}</span><script type="math/tex; mode=display">d_1 = ln(\frac{S}{K}) + \frac{r + \frac{\sigma^2}{2}}{\sigma \sqrt{T - t}}</script></span>
+<span><span class="MathJax_Preview">d_2 = d_1 - \sigma \sqrt{T - t}</span><script type="math/tex; mode=display">d_2 = d_1 - \sigma \sqrt{T - t}</script></span></p>
+<p>For further details , see for example
+<a href="https://en.wikipedia.org/wiki/Black-Scholes_model">the Black-Scholes Model Wikipedia page</a>.</p>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>float</code></dt>
+<dd>option's price estimated with Black-Scholes model.</dd>
+</dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def compute_price(self):
+<pre><code class="python">def compute_price(self) -&gt; float:
+    &#34;&#34;&#34;
+    Compute `self.option` &#39;s price using Black-Scholes model.
+
+    In this model, prices of European call and put options are given by:
+    $$Call(S, K) = N(d_1) S - N(d_2) K e^{-r (T - t)}$$
+    $$Put(S, K) = -N(-d_1) S + N(-d_2) K e^{-r (T - t)}$$
+
+    With:
+    $$N(x) := \mathbb{P}(X \leq x)  \quad   X \sim \mathcal{N}(0, 1)$$
+    $$d_1 = ln(\\frac{S}{K}) + \\frac{r + \\frac{\sigma^2}{2}}{\sigma \sqrt{T - t}}$$
+    $$d_2 = d_1 - \sigma \sqrt{T - t}$$
+
+    For further details , see for example
+    [the Black-Scholes Model Wikipedia page](https://en.wikipedia.org/wiki/Black-Scholes_model).
+
+    Returns:
+        float: option&#39;s price estimated with Black-Scholes model.
+    &#34;&#34;&#34;
     log.info(f&#34;Started computing option&#39;s price with {self.name} method...&#34;)
 
     opt = self.option
@@ -399,7 +609,6 @@ def norm_cdf_derivative(x):
 <ul class="">
 <li><code><a title="raop.pricing_models.black_scholes.BlackScholes.compute_greeks" href="#raop.pricing_models.black_scholes.BlackScholes.compute_greeks">compute_greeks</a></code></li>
 <li><code><a title="raop.pricing_models.black_scholes.BlackScholes.compute_price" href="#raop.pricing_models.black_scholes.BlackScholes.compute_price">compute_price</a></code></li>
-<li><code><a title="raop.pricing_models.black_scholes.BlackScholes.norm_cdf_derivative" href="#raop.pricing_models.black_scholes.BlackScholes.norm_cdf_derivative">norm_cdf_derivative</a></code></li>
 </ul>
 </li>
 </ul>
