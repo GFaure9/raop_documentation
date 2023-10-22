@@ -59,7 +59,7 @@ class BlackScholes(OptionPricingModel):
     def __init__(self, option):
         super().__init__(option)
 
-        if self.option.name != &#34;european&#34;:
+        if self.option.name != &#34;european&#34;:  # for now this model is only adapted to price European options
             error_msg = f&#34;This method is only adapted for European options: &#34; \
                         f&#34;option name must be &#39;european&#39;.&#34;
             log.error(error_msg)
@@ -92,8 +92,9 @@ class BlackScholes(OptionPricingModel):
         s, k, r, sigma, dt = opt.s, opt.k, opt.r, opt.sigma, opt.time_to_maturity
         price = None
 
+        # option&#39;s price is estimated by analytical formulas
         if opt.option_type == &#34;call&#34;:
-            n_d1 = norm.cdf(self._d1)
+            n_d1 = norm.cdf(self._d1)  # norm.cdf is the normal law&#39;s cumulative distribution function
             n_d2 = norm.cdf(self._d2)
             price = n_d1 * s - n_d2 * k * np.exp(-r * dt)
 
@@ -133,6 +134,7 @@ class BlackScholes(OptionPricingModel):
         &#34;&#34;&#34;
         log.info(f&#34;Started computing option&#39;s Greeks with {self.name} method...&#34;)
 
+        # all greeks are computed with analytical formulas
         greeks = {
             &#34;delta&#34;: self._delta,
             &#34;gamma&#34;: self._gamma,
@@ -284,7 +286,7 @@ log = logger</code></pre>
     def __init__(self, option):
         super().__init__(option)
 
-        if self.option.name != &#34;european&#34;:
+        if self.option.name != &#34;european&#34;:  # for now this model is only adapted to price European options
             error_msg = f&#34;This method is only adapted for European options: &#34; \
                         f&#34;option name must be &#39;european&#39;.&#34;
             log.error(error_msg)
@@ -317,8 +319,9 @@ log = logger</code></pre>
         s, k, r, sigma, dt = opt.s, opt.k, opt.r, opt.sigma, opt.time_to_maturity
         price = None
 
+        # option&#39;s price is estimated by analytical formulas
         if opt.option_type == &#34;call&#34;:
-            n_d1 = norm.cdf(self._d1)
+            n_d1 = norm.cdf(self._d1)  # norm.cdf is the normal law&#39;s cumulative distribution function
             n_d2 = norm.cdf(self._d2)
             price = n_d1 * s - n_d2 * k * np.exp(-r * dt)
 
@@ -358,6 +361,7 @@ log = logger</code></pre>
         &#34;&#34;&#34;
         log.info(f&#34;Started computing option&#39;s Greeks with {self.name} method...&#34;)
 
+        # all greeks are computed with analytical formulas
         greeks = {
             &#34;delta&#34;: self._delta,
             &#34;gamma&#34;: self._gamma,
@@ -508,6 +512,7 @@ log = logger</code></pre>
     &#34;&#34;&#34;
     log.info(f&#34;Started computing option&#39;s Greeks with {self.name} method...&#34;)
 
+    # all greeks are computed with analytical formulas
     greeks = {
         &#34;delta&#34;: self._delta,
         &#34;gamma&#34;: self._gamma,
@@ -572,8 +577,9 @@ X \sim \mathcal{N}(0, 1)</script></span>
     s, k, r, sigma, dt = opt.s, opt.k, opt.r, opt.sigma, opt.time_to_maturity
     price = None
 
+    # option&#39;s price is estimated by analytical formulas
     if opt.option_type == &#34;call&#34;:
-        n_d1 = norm.cdf(self._d1)
+        n_d1 = norm.cdf(self._d1)  # norm.cdf is the normal law&#39;s cumulative distribution function
         n_d2 = norm.cdf(self._d2)
         price = n_d1 * s - n_d2 * k * np.exp(-r * dt)
 

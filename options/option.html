@@ -104,7 +104,7 @@ class Option:
         self.s = underlying_price
         self.k = strike_price
         self.r = risk_free_rate
-        self.time_to_maturity = time_to_maturity
+        self.time_to_maturity = time_to_maturity  # years
         log.warning(&#34;&#39;time_to_maturity&#39; must be provided in years.&#34;)
 
         self.sigma = volatility
@@ -396,7 +396,7 @@ defined <code><a title="raop.options.option.Option" href="#raop.options.option.O
         self.s = underlying_price
         self.k = strike_price
         self.r = risk_free_rate
-        self.time_to_maturity = time_to_maturity
+        self.time_to_maturity = time_to_maturity  # years
         log.warning(&#34;&#39;time_to_maturity&#39; must be provided in years.&#34;)
 
         self.sigma = volatility

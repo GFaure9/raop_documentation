@@ -31,6 +31,7 @@
 
 
 class OptionPricingModel:
+    # remark: it could be possible to make this an abstract class using abc package (might be better...)
     &#34;&#34;&#34;
     Generic class for defining an option pricing model.
 
@@ -51,6 +52,8 @@ class OptionPricingModel:
         **compute_greeks**: return an estimation of the greeks of the option defined in `option`.
     &#34;&#34;&#34;
     def __init__(self, option: dict, **kwargs):
+        # using namedtuple is a way to be able to access to dict keys&#39; values as class attributes
+        # this is to facilitate its usage/readability later in the code
         Option = namedtuple(&#34;Option&#34;, [key for key in option.keys()])
         self.option = Option(*option.values())
 
@@ -103,6 +106,7 @@ class OptionPricingModel:
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class OptionPricingModel:
+    # remark: it could be possible to make this an abstract class using abc package (might be better...)
     &#34;&#34;&#34;
     Generic class for defining an option pricing model.
 
@@ -123,6 +127,8 @@ class OptionPricingModel:
         **compute_greeks**: return an estimation of the greeks of the option defined in `option`.
     &#34;&#34;&#34;
     def __init__(self, option: dict, **kwargs):
+        # using namedtuple is a way to be able to access to dict keys&#39; values as class attributes
+        # this is to facilitate its usage/readability later in the code
         Option = namedtuple(&#34;Option&#34;, [key for key in option.keys()])
         self.option = Option(*option.values())
 

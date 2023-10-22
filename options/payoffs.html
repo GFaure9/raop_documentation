@@ -54,6 +54,7 @@ def european(
     &#34;&#34;&#34;
 
     if s_0_to_t is not None:
+        # this is to homogenize usage of payoff functions in OptionPricingModel subclasses
         s = s_0_to_t[-1, :]
 
     zero = 0
@@ -62,7 +63,7 @@ def european(
 
     pay_offs = None
     if option_type == &#34;call&#34;:
-        pay_offs = np.amax([zero, s - k], axis=0)
+        pay_offs = np.amax([zero, s - k], axis=0)  # N.B: np.amax() returns a element-wise maximums
     elif option_type == &#34;put&#34;:
         pay_offs = np.amax([zero, k - s], axis=0)
 
@@ -81,10 +82,12 @@ def american(s_0_to_t: np.ndarray = None, **kwargs) -&gt; Union[float, np.ndarra
         Union[float, np.ndarray]: if `s` is a float, the function returns a float corresponding to option&#39;s payoff. If `s` is an array, returns an array with option&#39;s payoffs corresponding to each price.
     &#34;&#34;&#34;
     if s_0_to_t is not None:
+        # used for instance for Monte-Carlo and binomial pricing methods
         kwargs[&#34;s&#34;] = s_0_to_t
         pay_offs = european(**kwargs)
         return pay_offs
     else:
+        # if we are already at time t the payoff is the same as for a european option
         return european(**kwargs)
 
 
@@ -132,10 +135,12 @@ def asian():
         Union[float, np.ndarray]: if `s` is a float, the function returns a float corresponding to option&#39;s payoff. If `s` is an array, returns an array with option&#39;s payoffs corresponding to each price.
     &#34;&#34;&#34;
     if s_0_to_t is not None:
+        # used for instance for Monte-Carlo and binomial pricing methods
         kwargs[&#34;s&#34;] = s_0_to_t
         pay_offs = european(**kwargs)
         return pay_offs
     else:
+        # if we are already at time t the payoff is the same as for a european option
         return european(**kwargs)</code></pre>
 </details>
 </dd>
@@ -200,6 +205,7 @@ def asian():
     &#34;&#34;&#34;
 
     if s_0_to_t is not None:
+        # this is to homogenize usage of payoff functions in OptionPricingModel subclasses
         s = s_0_to_t[-1, :]
 
     zero = 0
@@ -208,7 +214,7 @@ def asian():
 
     pay_offs = None
     if option_type == &#34;call&#34;:
-        pay_offs = np.amax([zero, s - k], axis=0)
+        pay_offs = np.amax([zero, s - k], axis=0)  # N.B: np.amax() returns a element-wise maximums
     elif option_type == &#34;put&#34;:
         pay_offs = np.amax([zero, k - s], axis=0)
 
