@@ -42,12 +42,43 @@ process_update_models = {
     &#34;merton_jd&#34;: [&#34;mu&#34;, &#34;sigma&#34;, &#34;p&#34;],  # Merton Jump Diffusion process
     &#34;orn_uhl&#34;: [&#34;theta&#34;, &#34;sigma&#34;, &#34;mu&#34;],  # Mean-Reverting Processes: Ornstein-Uhlenbeck process
     &#34;cir&#34;: [&#34;theta&#34;, &#34;sigma&#34;, &#34;mu&#34;],  # Mean-Reverting Processes: Cox-Ingersoll-Ross process
-    &#34;heston&#34;: [&#34;mu&#34;, &#34;kappa&#34;, &#34;theta&#34;, &#34;ksi&#34;],  # Heston Model
+    &#34;heston&#34;: [&#34;mu&#34;, &#34;kappa&#34;, &#34;theta&#34;, &#34;xi&#34;],  # Heston Model
     &#34;vg&#34;: [&#34;theta&#34;, &#34;sigma&#34;, &#34;nu&#34;],  # Variance-Gamma (VG) Model
 }
 
 
 class StochasticProcess:
+    &#34;&#34;&#34;
+    Main class to model a stochastic process (for simulating underlying asset&#39;s price evolution through time).
+
+    Attributes:
+         x0 (float): initial value of the random variable (classically underlying asset&#39;s price at t=0).
+         model_name (str): name of the chosen stochastic process to make evolve the random variable. See `raop.stochastic_processes.process_update` for further details on available update models. Possibilities are:
+
+                    &#34;gbm&#34;  # Geometric Brownian Motion
+                    &#34;abm&#34;  # Arithmetic Brownian Motion
+                    &#34;merton_jd&#34;  # Merton Jump Diffusion process
+                    &#34;orn_uhl&#34;  # Mean-Reverting Processes: Ornstein-Uhlenbeck process
+                    &#34;cir&#34;  # Mean-Reverting Processes: Cox-Ingersoll-Ross process
+                    &#34;heston&#34;  # Heston Model
+                    &#34;vg&#34;  # Variance-Gamma (VG) Model
+         nu0 (float): initial value of a second random variable on which could depend the first random variable (classically volatility). Default value is np.NaN.
+         **kwargs: potentially needed key-words arguments for process update computation, depending on chosen model. See `raop.stochastic_processes.process_update` for further details on update models arguments. Mandatory arguments for each model are:
+
+                    &#34;gbm&#34; -&gt; &#34;mu&#34;, &#34;sigma&#34;
+                    &#34;abm&#34; -&gt; &#34;mu&#34;, &#34;sigma&#34;
+                    &#34;merton_jd&#34; -&gt; &#34;mu&#34;, &#34;sigma&#34;, &#34;p&#34;
+                    &#34;orn_uhl&#34; -&gt; &#34;theta&#34;, &#34;sigma&#34;, &#34;mu&#34;
+                    &#34;cir&#34; -&gt; &#34;theta&#34;, &#34;sigma&#34;, &#34;mu&#34;
+                    &#34;heston&#34; -&gt; &#34;mu&#34;, &#34;kappa&#34;, &#34;theta&#34;, &#34;xi&#34;
+                    &#34;vg&#34; -&gt; &#34;theta&#34;, &#34;sigma&#34;, &#34;nu&#34;
+         model_params (namedtuple): contains all the parameters previously given as kwargs that are necessary to update the random variables with the chosen model. Automatically created when instantiating a `StochasticProcess`.
+
+    Methods:
+        **compute_xt** (`t`, `n_t`, `n_var`): return `n_var` simulated random variables values at time `t` (starting with initial value `x0`) and all computed values between 0 and t with time step $$\Delta t = \\frac{t}{n_t}$$
+
+        **plot** (`t`, `n_t`, `n_var`, `save_path`): plot `n_var` simulated random variables values between 0 and `t` (starting at `x0`) with `n_t` steps. If `save_path` is None, display the plot. Else save it at the given path.
+    &#34;&#34;&#34;
     def __init__(self, x0: float, model_name: str, nu0: float = np.NaN, **kwargs):
         if model_name not in process_update_models.keys():
             error_msg = f&#34;&#39;model_name&#39; must be chosen among the following names:\n&#34; \
@@ -82,6 +113,18 @@ class StochasticProcess:
         self.model_params = Params(*kwargs.values())
 
     def compute_xt(self, t: float, n_t: int, n_var: int = 1) -&gt; Tuple[Union[float, np.ndarray], np.ndarray]:
+        &#34;&#34;&#34;
+        Simulate `n_var` random variables updated at each time step with `self.model_name` stochastic process
+        over a duration `t` discretized into `n_t` steps, starting with value `self.x0`.
+
+        Args:
+            t (float): stochastic process duration.
+            n_t (int): number of time steps to subdivide duration `t`.
+            n_var (int): number of simulated stochastic processes.
+
+        Returns:
+            Tuple[Union[float, np.ndarray], np.ndarray]: random variables values at time `t` and a np.ndarray with all random variable values between 0 and t (included).
+        &#34;&#34;&#34;
         p = self.model_params
         xt = self.x0
         nut = self.nu0
@@ -101,6 +144,18 @@ class StochasticProcess:
         return xt, np.array(x_0_to_t)
 
     def plot(self, t: float, n_t: int, n_var: int = 1, save_path: str = None):
+        &#34;&#34;&#34;
+        Plot `n_var` random variables updated at each time step with `self.model_name` stochastic process
+        over a duration `t` discretized into `n_t` steps, starting with value `self.x0`.
+
+        x-axis is for time and y-axis is for random variables values.
+
+        Args:
+            t (float): stochastic process duration.
+            n_t (int): number of time steps to subdivide duration `t`.
+            n_var (int): number of simulated stochastic processes.
+            save_path (str): path where to save the plot. Default is None: in that case plot will be displayed. If not, it will be saved at the given file path.
+        &#34;&#34;&#34;
         processes = self.compute_xt(t, n_t, n_var)[1].T
         dt = t/n_t
         time = np.arange(0, t + dt, dt)
@@ -186,12 +241,75 @@ if __name__ == &#34;__main__&#34;:
 <span>(</span><span>x0: float, model_name: str, nu0: float = nan, **kwargs)</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Main class to model a stochastic process (for simulating underlying asset's price evolution through time).</p>
+<h2 id="attributes">Attributes</h2>
+<dl>
+<dt><strong><code>x0</code></strong> :&ensp;<code>float</code></dt>
+<dd>initial value of the random variable (classically underlying asset's price at t=0).</dd>
+<dt><strong><code>model_name</code></strong> :&ensp;<code>str</code></dt>
+<dd>name of the chosen stochastic process to make evolve the random variable. See <code><a title="raop.stochastic_processes.process_update" href="process_update.html">raop.stochastic_processes.process_update</a></code> for further details on available update models. Possibilities are:<pre><code>   "gbm"  # Geometric Brownian Motion
+   "abm"  # Arithmetic Brownian Motion
+   "merton_jd"  # Merton Jump Diffusion process
+   "orn_uhl"  # Mean-Reverting Processes: Ornstein-Uhlenbeck process
+   "cir"  # Mean-Reverting Processes: Cox-Ingersoll-Ross process
+   "heston"  # Heston Model
+   "vg"  # Variance-Gamma (VG) Model
+</code></pre>
+</dd>
+<dt><strong><code>nu0</code></strong> :&ensp;<code>float</code></dt>
+<dd>initial value of a second random variable on which could depend the first random variable (classically volatility). Default value is np.NaN.</dd>
+<dt><strong><code>**kwargs</code></strong></dt>
+<dd>potentially needed key-words arguments for process update computation, depending on chosen model. See <code><a title="raop.stochastic_processes.process_update" href="process_update.html">raop.stochastic_processes.process_update</a></code> for further details on update models arguments. Mandatory arguments for each model are:<pre><code>   "gbm" -&gt; "mu", "sigma"
+   "abm" -&gt; "mu", "sigma"
+   "merton_jd" -&gt; "mu", "sigma", "p"
+   "orn_uhl" -&gt; "theta", "sigma", "mu"
+   "cir" -&gt; "theta", "sigma", "mu"
+   "heston" -&gt; "mu", "kappa", "theta", "xi"
+   "vg" -&gt; "theta", "sigma", "nu"
+</code></pre>
+</dd>
+<dt><strong><code>model_params</code></strong> :&ensp;<code>namedtuple</code></dt>
+<dd>contains all the parameters previously given as kwargs that are necessary to update the random variables with the chosen model. Automatically created when instantiating a <code><a title="raop.stochastic_processes.stochastic_process.StochasticProcess" href="#raop.stochastic_processes.stochastic_process.StochasticProcess">StochasticProcess</a></code>.</dd>
+</dl>
+<h2 id="methods">Methods</h2>
+<p><strong>compute_xt</strong> (<code>t</code>, <code>n_t</code>, <code>n_var</code>): return <code>n_var</code> simulated random variables values at time <code>t</code> (starting with initial value <code>x0</code>) and all computed values between 0 and t with time step <span><span class="MathJax_Preview">\Delta t = \frac{t}{n_t}</span><script type="math/tex; mode=display">\Delta t = \frac{t}{n_t}</script></span></p>
+<p><strong>plot</strong> (<code>t</code>, <code>n_t</code>, <code>n_var</code>, <code>save_path</code>): plot <code>n_var</code> simulated random variables values between 0 and <code>t</code> (starting at <code>x0</code>) with <code>n_t</code> steps. If <code>save_path</code> is None, display the plot. Else save it at the given path.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class StochasticProcess:
+    &#34;&#34;&#34;
+    Main class to model a stochastic process (for simulating underlying asset&#39;s price evolution through time).
+
+    Attributes:
+         x0 (float): initial value of the random variable (classically underlying asset&#39;s price at t=0).
+         model_name (str): name of the chosen stochastic process to make evolve the random variable. See `raop.stochastic_processes.process_update` for further details on available update models. Possibilities are:
+
+                    &#34;gbm&#34;  # Geometric Brownian Motion
+                    &#34;abm&#34;  # Arithmetic Brownian Motion
+                    &#34;merton_jd&#34;  # Merton Jump Diffusion process
+                    &#34;orn_uhl&#34;  # Mean-Reverting Processes: Ornstein-Uhlenbeck process
+                    &#34;cir&#34;  # Mean-Reverting Processes: Cox-Ingersoll-Ross process
+                    &#34;heston&#34;  # Heston Model
+                    &#34;vg&#34;  # Variance-Gamma (VG) Model
+         nu0 (float): initial value of a second random variable on which could depend the first random variable (classically volatility). Default value is np.NaN.
+         **kwargs: potentially needed key-words arguments for process update computation, depending on chosen model. See `raop.stochastic_processes.process_update` for further details on update models arguments. Mandatory arguments for each model are:
+
+                    &#34;gbm&#34; -&gt; &#34;mu&#34;, &#34;sigma&#34;
+                    &#34;abm&#34; -&gt; &#34;mu&#34;, &#34;sigma&#34;
+                    &#34;merton_jd&#34; -&gt; &#34;mu&#34;, &#34;sigma&#34;, &#34;p&#34;
+                    &#34;orn_uhl&#34; -&gt; &#34;theta&#34;, &#34;sigma&#34;, &#34;mu&#34;
+                    &#34;cir&#34; -&gt; &#34;theta&#34;, &#34;sigma&#34;, &#34;mu&#34;
+                    &#34;heston&#34; -&gt; &#34;mu&#34;, &#34;kappa&#34;, &#34;theta&#34;, &#34;xi&#34;
+                    &#34;vg&#34; -&gt; &#34;theta&#34;, &#34;sigma&#34;, &#34;nu&#34;
+         model_params (namedtuple): contains all the parameters previously given as kwargs that are necessary to update the random variables with the chosen model. Automatically created when instantiating a `StochasticProcess`.
+
+    Methods:
+        **compute_xt** (`t`, `n_t`, `n_var`): return `n_var` simulated random variables values at time `t` (starting with initial value `x0`) and all computed values between 0 and t with time step $$\Delta t = \\frac{t}{n_t}$$
+
+        **plot** (`t`, `n_t`, `n_var`, `save_path`): plot `n_var` simulated random variables values between 0 and `t` (starting at `x0`) with `n_t` steps. If `save_path` is None, display the plot. Else save it at the given path.
+    &#34;&#34;&#34;
     def __init__(self, x0: float, model_name: str, nu0: float = np.NaN, **kwargs):
         if model_name not in process_update_models.keys():
             error_msg = f&#34;&#39;model_name&#39; must be chosen among the following names:\n&#34; \
@@ -226,6 +344,18 @@ if __name__ == &#34;__main__&#34;:
         self.model_params = Params(*kwargs.values())
 
     def compute_xt(self, t: float, n_t: int, n_var: int = 1) -&gt; Tuple[Union[float, np.ndarray], np.ndarray]:
+        &#34;&#34;&#34;
+        Simulate `n_var` random variables updated at each time step with `self.model_name` stochastic process
+        over a duration `t` discretized into `n_t` steps, starting with value `self.x0`.
+
+        Args:
+            t (float): stochastic process duration.
+            n_t (int): number of time steps to subdivide duration `t`.
+            n_var (int): number of simulated stochastic processes.
+
+        Returns:
+            Tuple[Union[float, np.ndarray], np.ndarray]: random variables values at time `t` and a np.ndarray with all random variable values between 0 and t (included).
+        &#34;&#34;&#34;
         p = self.model_params
         xt = self.x0
         nut = self.nu0
@@ -245,6 +375,18 @@ if __name__ == &#34;__main__&#34;:
         return xt, np.array(x_0_to_t)
 
     def plot(self, t: float, n_t: int, n_var: int = 1, save_path: str = None):
+        &#34;&#34;&#34;
+        Plot `n_var` random variables updated at each time step with `self.model_name` stochastic process
+        over a duration `t` discretized into `n_t` steps, starting with value `self.x0`.
+
+        x-axis is for time and y-axis is for random variables values.
+
+        Args:
+            t (float): stochastic process duration.
+            n_t (int): number of time steps to subdivide duration `t`.
+            n_var (int): number of simulated stochastic processes.
+            save_path (str): path where to save the plot. Default is None: in that case plot will be displayed. If not, it will be saved at the given file path.
+        &#34;&#34;&#34;
         processes = self.compute_xt(t, n_t, n_var)[1].T
         dt = t/n_t
         time = np.arange(0, t + dt, dt)
@@ -272,12 +414,39 @@ if __name__ == &#34;__main__&#34;:
 <span>def <span class="ident">compute_xt</span></span>(<span>self, t: float, n_t: int, n_var: int = 1) ‑> Tuple[Union[float, numpy.ndarray], numpy.ndarray]</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Simulate <code>n_var</code> random variables updated at each time step with <code>self.model_name</code> stochastic process
+over a duration <code>t</code> discretized into <code>n_t</code> steps, starting with value <code>self.x0</code>.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>t</code></strong> :&ensp;<code>float</code></dt>
+<dd>stochastic process duration.</dd>
+<dt><strong><code>n_t</code></strong> :&ensp;<code>int</code></dt>
+<dd>number of time steps to subdivide duration <code>t</code>.</dd>
+<dt><strong><code>n_var</code></strong> :&ensp;<code>int</code></dt>
+<dd>number of simulated stochastic processes.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>Tuple[Union[float, np.ndarray], np.ndarray]</code></dt>
+<dd>random variables values at time <code>t</code> and a np.ndarray with all random variable values between 0 and t (included).</dd>
+</dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def compute_xt(self, t: float, n_t: int, n_var: int = 1) -&gt; Tuple[Union[float, np.ndarray], np.ndarray]:
+    &#34;&#34;&#34;
+    Simulate `n_var` random variables updated at each time step with `self.model_name` stochastic process
+    over a duration `t` discretized into `n_t` steps, starting with value `self.x0`.
+
+    Args:
+        t (float): stochastic process duration.
+        n_t (int): number of time steps to subdivide duration `t`.
+        n_var (int): number of simulated stochastic processes.
+
+    Returns:
+        Tuple[Union[float, np.ndarray], np.ndarray]: random variables values at time `t` and a np.ndarray with all random variable values between 0 and t (included).
+    &#34;&#34;&#34;
     p = self.model_params
     xt = self.x0
     nut = self.nu0
@@ -301,12 +470,37 @@ if __name__ == &#34;__main__&#34;:
 <span>def <span class="ident">plot</span></span>(<span>self, t: float, n_t: int, n_var: int = 1, save_path: str = None)</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Plot <code>n_var</code> random variables updated at each time step with <code>self.model_name</code> stochastic process
+over a duration <code>t</code> discretized into <code>n_t</code> steps, starting with value <code>self.x0</code>.</p>
+<p>x-axis is for time and y-axis is for random variables values.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>t</code></strong> :&ensp;<code>float</code></dt>
+<dd>stochastic process duration.</dd>
+<dt><strong><code>n_t</code></strong> :&ensp;<code>int</code></dt>
+<dd>number of time steps to subdivide duration <code>t</code>.</dd>
+<dt><strong><code>n_var</code></strong> :&ensp;<code>int</code></dt>
+<dd>number of simulated stochastic processes.</dd>
+<dt><strong><code>save_path</code></strong> :&ensp;<code>str</code></dt>
+<dd>path where to save the plot. Default is None: in that case plot will be displayed. If not, it will be saved at the given file path.</dd>
+</dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def plot(self, t: float, n_t: int, n_var: int = 1, save_path: str = None):
+    &#34;&#34;&#34;
+    Plot `n_var` random variables updated at each time step with `self.model_name` stochastic process
+    over a duration `t` discretized into `n_t` steps, starting with value `self.x0`.
+
+    x-axis is for time and y-axis is for random variables values.
+
+    Args:
+        t (float): stochastic process duration.
+        n_t (int): number of time steps to subdivide duration `t`.
+        n_var (int): number of simulated stochastic processes.
+        save_path (str): path where to save the plot. Default is None: in that case plot will be displayed. If not, it will be saved at the given file path.
+    &#34;&#34;&#34;
     processes = self.compute_xt(t, n_t, n_var)[1].T
     dt = t/n_t
     time = np.arange(0, t + dt, dt)

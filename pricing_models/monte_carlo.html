@@ -37,6 +37,37 @@ from raop.pricing_models.core import monte_carlo
 
 
 class MonteCarlo(OptionPricingModel):
+    &#34;&#34;&#34;
+    Subclass of `OptionPricingModel` defining a pricing model that uses the Monte-Carlo method.
+
+    Attributes:
+        option (collections.namedtuple): its keys are:
+
+                &#34;name&#34;
+                &#34;option_type&#34;
+                &#34;s&#34;
+                &#34;k&#34;
+                &#34;r&#34;
+                &#34;time_to_maturity&#34;
+                &#34;sigma&#34;
+        name (str): name of the pricing model. Default is &#34;Monte-Carlo&#34;.
+        stochastic_process (raop.stochastic_processes.stochastic_process.StochasticProcess): object defining the stochastic process that models the evolution of underlying asset&#39;s price.
+        n_processes (int): number of simulated processes in the method.
+        basis_functions (str): type of basis functions used when pricing American options using the Longstaff-Schwarz method (LSM). Default value is &#34;laguerre&#34;. Possibilities are:
+
+                &#34;laguerre&#34;
+                &#34;hermite&#34;
+                &#34;legendre&#34;
+                &#34;jacobi&#34;
+                &#34;chebyt&#34;  # Chebyshev polynomials
+                &#34;gegenbauer&#34;
+        number_of_functions (int): number of basis functions used to approximate continuation values in LSM. Default value is 20.
+
+    Methods:
+        **compute_price**: estimate the price of the option described in `option` using Monte-Carlo method.
+
+        **compute_greeks**: estimate the greeks of the option described in `option` using Monte-Carlo method.
+    &#34;&#34;&#34;
     def __init__(self, option,
                  stochastic_process: StochasticProcess, n_processes: int, n_t: int,
                  basis_functions: str = None, number_of_functions: int = None):
@@ -54,6 +85,22 @@ class MonteCarlo(OptionPricingModel):
             self.number_of_functions = number_of_functions
 
     def compute_price(self):
+        &#34;&#34;&#34;
+        Compute `self.option` &#39;s price using the Monte-Carlo method.
+
+        For European options, it consists in simulating `self.n_processes` possible evolutions
+        of underlying price up to maturity date
+        (using `raop.stochastic_processes.stochastic_process.StochasticProcess`),
+        and averaging the discounted final payoffs of all cases.
+        $$V = \\frac{1}{N} \sum_{i=1}^{N}{e^{-r (T - t)} Payoff(S_i)}$$
+
+        For American options, Longstaff-Schwarz method is used: see for example
+        [this Oxford&#39;s university presentation](https://people.maths.ox.ac.uk/gilesm/mc/module_6/american.pdf)
+        for a detailed description of the method.
+
+        Returns:
+            float: option&#39;s price estimated with the Monte-Carlo method.
+        &#34;&#34;&#34;
         log.info(f&#34;Started computing option&#39;s price with {self.name} method...&#34;)
 
         opt = self.option
@@ -124,7 +171,7 @@ log = logger</code></pre>
 <span>(</span><span>option, stochastic_process: <a title="raop.stochastic_processes.stochastic_process.StochasticProcess" href="../stochastic_processes/stochastic_process.html#raop.stochastic_processes.stochastic_process.StochasticProcess">StochasticProcess</a>, n_processes: int, n_t: int, basis_functions: str = None, number_of_functions: int = None)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Generic class for defining an option pricing model.</p>
+<div class="desc"><p>Subclass of <code>OptionPricingModel</code> defining a pricing model that uses the Monte-Carlo method.</p>
 <h2 id="attributes">Attributes</h2>
 <dl>
 <dt><strong><code>option</code></strong> :&ensp;<code>collections.namedtuple</code></dt>
@@ -137,15 +184,63 @@ log = logger</code></pre>
 "sigma"
 </code></pre>
 </dd>
+<dt><strong><code>name</code></strong> :&ensp;<code>str</code></dt>
+<dd>name of the pricing model. Default is "Monte-Carlo".</dd>
+<dt><strong><code>stochastic_process</code></strong> :&ensp;<code><a title="raop.stochastic_processes.stochastic_process.StochasticProcess" href="../stochastic_processes/stochastic_process.html#raop.stochastic_processes.stochastic_process.StochasticProcess">StochasticProcess</a></code></dt>
+<dd>object defining the stochastic process that models the evolution of underlying asset's price.</dd>
+<dt><strong><code>n_processes</code></strong> :&ensp;<code>int</code></dt>
+<dd>number of simulated processes in the method.</dd>
+<dt><strong><code>basis_functions</code></strong> :&ensp;<code>str</code></dt>
+<dd>type of basis functions used when pricing American options using the Longstaff-Schwarz method (LSM). Default value is "laguerre". Possibilities are:<pre><code>"laguerre"
+"hermite"
+"legendre"
+"jacobi"
+"chebyt"  # Chebyshev polynomials
+"gegenbauer"
+</code></pre>
+</dd>
+<dt><strong><code>number_of_functions</code></strong> :&ensp;<code>int</code></dt>
+<dd>number of basis functions used to approximate continuation values in LSM. Default value is 20.</dd>
 </dl>
 <h2 id="methods">Methods</h2>
-<p><strong>compute_price</strong>: return an estimation of the price of the option defined in <code>option</code>.</p>
-<p><strong>compute_greeks</strong>: return an estimation of the greeks of the option defined in <code>option</code>.</p></div>
+<p><strong>compute_price</strong>: estimate the price of the option described in <code>option</code> using Monte-Carlo method.</p>
+<p><strong>compute_greeks</strong>: estimate the greeks of the option described in <code>option</code> using Monte-Carlo method.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class MonteCarlo(OptionPricingModel):
+    &#34;&#34;&#34;
+    Subclass of `OptionPricingModel` defining a pricing model that uses the Monte-Carlo method.
+
+    Attributes:
+        option (collections.namedtuple): its keys are:
+
+                &#34;name&#34;
+                &#34;option_type&#34;
+                &#34;s&#34;
+                &#34;k&#34;
+                &#34;r&#34;
+                &#34;time_to_maturity&#34;
+                &#34;sigma&#34;
+        name (str): name of the pricing model. Default is &#34;Monte-Carlo&#34;.
+        stochastic_process (raop.stochastic_processes.stochastic_process.StochasticProcess): object defining the stochastic process that models the evolution of underlying asset&#39;s price.
+        n_processes (int): number of simulated processes in the method.
+        basis_functions (str): type of basis functions used when pricing American options using the Longstaff-Schwarz method (LSM). Default value is &#34;laguerre&#34;. Possibilities are:
+
+                &#34;laguerre&#34;
+                &#34;hermite&#34;
+                &#34;legendre&#34;
+                &#34;jacobi&#34;
+                &#34;chebyt&#34;  # Chebyshev polynomials
+                &#34;gegenbauer&#34;
+        number_of_functions (int): number of basis functions used to approximate continuation values in LSM. Default value is 20.
+
+    Methods:
+        **compute_price**: estimate the price of the option described in `option` using Monte-Carlo method.
+
+        **compute_greeks**: estimate the greeks of the option described in `option` using Monte-Carlo method.
+    &#34;&#34;&#34;
     def __init__(self, option,
                  stochastic_process: StochasticProcess, n_processes: int, n_t: int,
                  basis_functions: str = None, number_of_functions: int = None):
@@ -163,6 +258,22 @@ log = logger</code></pre>
             self.number_of_functions = number_of_functions
 
     def compute_price(self):
+        &#34;&#34;&#34;
+        Compute `self.option` &#39;s price using the Monte-Carlo method.
+
+        For European options, it consists in simulating `self.n_processes` possible evolutions
+        of underlying price up to maturity date
+        (using `raop.stochastic_processes.stochastic_process.StochasticProcess`),
+        and averaging the discounted final payoffs of all cases.
+        $$V = \\frac{1}{N} \sum_{i=1}^{N}{e^{-r (T - t)} Payoff(S_i)}$$
+
+        For American options, Longstaff-Schwarz method is used: see for example
+        [this Oxford&#39;s university presentation](https://people.maths.ox.ac.uk/gilesm/mc/module_6/american.pdf)
+        for a detailed description of the method.
+
+        Returns:
+            float: option&#39;s price estimated with the Monte-Carlo method.
+        &#34;&#34;&#34;
         log.info(f&#34;Started computing option&#39;s price with {self.name} method...&#34;)
 
         opt = self.option
@@ -219,12 +330,67 @@ log = logger</code></pre>
 <ul class="hlist">
 <li><a title="raop.pricing_models.pricing_model.OptionPricingModel" href="pricing_model.html#raop.pricing_models.pricing_model.OptionPricingModel">OptionPricingModel</a></li>
 </ul>
+<h3>Methods</h3>
+<dl>
+<dt id="raop.pricing_models.monte_carlo.MonteCarlo.compute_price"><code class="name flex">
+<span>def <span class="ident">compute_price</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Compute <code>self.option</code> 's price using the Monte-Carlo method.</p>
+<p>For European options, it consists in simulating <code>self.n_processes</code> possible evolutions
+of underlying price up to maturity date
+(using <code><a title="raop.stochastic_processes.stochastic_process.StochasticProcess" href="../stochastic_processes/stochastic_process.html#raop.stochastic_processes.stochastic_process.StochasticProcess">StochasticProcess</a></code>),
+and averaging the discounted final payoffs of all cases.
+<span><span class="MathJax_Preview">V = \frac{1}{N} \sum_{i=1}^{N}{e^{-r (T - t)} Payoff(S_i)}</span><script type="math/tex; mode=display">V = \frac{1}{N} \sum_{i=1}^{N}{e^{-r (T - t)} Payoff(S_i)}</script></span></p>
+<p>For American options, Longstaff-Schwarz method is used: see for example
+<a href="https://people.maths.ox.ac.uk/gilesm/mc/module_6/american.pdf">this Oxford's university presentation</a>
+for a detailed description of the method.</p>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>float</code></dt>
+<dd>option's price estimated with the Monte-Carlo method.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def compute_price(self):
+    &#34;&#34;&#34;
+    Compute `self.option` &#39;s price using the Monte-Carlo method.
+
+    For European options, it consists in simulating `self.n_processes` possible evolutions
+    of underlying price up to maturity date
+    (using `raop.stochastic_processes.stochastic_process.StochasticProcess`),
+    and averaging the discounted final payoffs of all cases.
+    $$V = \\frac{1}{N} \sum_{i=1}^{N}{e^{-r (T - t)} Payoff(S_i)}$$
+
+    For American options, Longstaff-Schwarz method is used: see for example
+    [this Oxford&#39;s university presentation](https://people.maths.ox.ac.uk/gilesm/mc/module_6/american.pdf)
+    for a detailed description of the method.
+
+    Returns:
+        float: option&#39;s price estimated with the Monte-Carlo method.
+    &#34;&#34;&#34;
+    log.info(f&#34;Started computing option&#39;s price with {self.name} method...&#34;)
+
+    opt = self.option
+    sto_pro = self.stochastic_process
+    n_t, n_var = self.n_t, self.n_proc
+    bas_funcs, n_funcs = self.basis_functions, self.number_of_functions
+
+    price = monte_carlo(sto_pro=sto_pro, n_t=n_t, n_var=n_var, option=opt,
+                        basis_functions=bas_funcs, number_of_functions=n_funcs)
+
+    log.info(f&#34;Finished computing option&#39;s price! [Price = {price}]\n&#34;)
+    return price</code></pre>
+</details>
+</dd>
+</dl>
 <h3>Inherited members</h3>
 <ul class="hlist">
 <li><code><b><a title="raop.pricing_models.pricing_model.OptionPricingModel" href="pricing_model.html#raop.pricing_models.pricing_model.OptionPricingModel">OptionPricingModel</a></b></code>:
 <ul class="hlist">
 <li><code><a title="raop.pricing_models.pricing_model.OptionPricingModel.compute_greeks" href="pricing_model.html#raop.pricing_models.pricing_model.OptionPricingModel.compute_greeks">compute_greeks</a></code></li>
-<li><code><a title="raop.pricing_models.pricing_model.OptionPricingModel.compute_price" href="pricing_model.html#raop.pricing_models.pricing_model.OptionPricingModel.compute_price">compute_price</a></code></li>
 </ul>
 </li>
 </ul>
@@ -247,6 +413,9 @@ log = logger</code></pre>
 <ul>
 <li>
 <h4><code><a title="raop.pricing_models.monte_carlo.MonteCarlo" href="#raop.pricing_models.monte_carlo.MonteCarlo">MonteCarlo</a></code></h4>
+<ul class="">
+<li><code><a title="raop.pricing_models.monte_carlo.MonteCarlo.compute_price" href="#raop.pricing_models.monte_carlo.MonteCarlo.compute_price">compute_price</a></code></li>
+</ul>
 </li>
 </ul>
 </li>
